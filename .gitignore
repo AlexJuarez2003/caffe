@@ -1,0 +1,24 @@
+# Django / Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+db.sqlite3
+
+# Entornos virtuales
+env/
+venv/
+ENV/
+
+# Archivos sensibles
+.env
+
+# Archivos de logs
+*.log
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+dist/
