@@ -4,6 +4,7 @@ import UserProfile from './components/PerfilUsuario';
 import FoodMenu from './components/MenuComida';
 import HistorialPedidos from './components/HistorialPedidos';
 import Carrito from './components/Carrito';
+import SignUp from './components/SignUp';
 
 function App() {
   return (
@@ -12,6 +13,8 @@ function App() {
         <Routes>
           {/* 1. Al entrar a la app (/) ahora mostramos el Login */}
           <Route path="/" element={<Login />} />
+
+          <Route path="/signup" element={<SignUp />} />
           
           {/* 2. El Login te mandará aquí directamente */}
           <Route path="/menu" element={<FoodMenu />} />

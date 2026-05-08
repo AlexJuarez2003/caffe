@@ -1,15 +1,15 @@
-from rest_framework import generics
-from .models import User
-from .serializers import UserSignUpSerializer, LoginSerializer, UserUpdateSerializer
-
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from rest_framework import status
-
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
-
-from rest_framework.views import APIView
+from .models import User, Customer, Chef, Delivery
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics, status
+from rest_framework.views import APIView
+
+from .serializers import (UserSignUpSerializer,  CustomerSignUpSerializer, ChefSignUpSerializer, DeliverySignUpSerializer,
+                          UserUpdateSerializer, CustomerUpdateSerializer, ChefUpdateSerializer, DeliveryUpdateSerializer,
+                          LoginSerializer, 
+                          )
 
 
 # Automatically handles POST request
@@ -20,6 +20,25 @@ class SignupView(generics.CreateAPIView):
     
     serializer_class = UserSignUpSerializer
     
+    
+class CustomerSignUpView(generics.CreateAPIView):
+    
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSignUpSerializer
+    permission_classes = [AllowAny]
+
+
+class ChefSignUpView(generics.CreateAPIView):
+    
+    queryset = Chef.objects.all()
+    serializer_class = ChefSignUpSerializer
+
+
+class DeliverySignUpView(generics.CreateAPIView):
+    
+    queryset = Delivery.objects.all()
+    serializer_class = DeliverySignUpSerializer
+
 
 class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
@@ -88,7 +107,7 @@ class RefreshView(TokenRefreshView):
             return Response({'error': 'Invalid refresh token'}, status=401)
         
 
-class LogoutVIew(APIView):
+class LogoutView(APIView):
     
     def post(self, request):
         response = Response({'message': 'Logged out'})
@@ -97,24 +116,54 @@ class LogoutVIew(APIView):
         response.delete_cookie('refresh')
         
         return response
-    
-    
-class ProfileView(APIView):
-    permission_classes = [IsAuthenticated]
-    
-    def get(self, request):
-        return Response({
-            "email": request.user.email,
-            "first_name": request.user.first_name,
-            "last_name": request.user.last_name,
-            "creation_date": request.user.creation_date,
-            "phone_number": request.user.phone_number,
-            "role": request.user.role
-        })
+        
         
 class UserProfileUpdateView(generics.RetrieveUpdateAPIView):
+    
     serializer_class = UserUpdateSerializer
     permission_classes = [IsAuthenticated]
     
     def get_object(self):
-        return self.request.user
+        return self.request.user    
+
+class CustomerProfileUpdateView(generics.RetrieveUpdateAPIView):
+    
+    serializer_class = CustomerUpdateSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_object(self):
+        return self.request.user.customer
+
+
+class ChefProfileUpdateView(generics.RetrieveUpdateAPIView):
+    
+    serializer_class = ChefUpdateSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_object(self):
+        return self.request.user.chef
+
+
+class DeliveryProfileUpdateView(generics.RetrieveUpdateAPIView):
+
+    serializer_class = DeliveryUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user.delivery
+
+
+class DeleteAccountView(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
+    def delete(self, request):
+        
+        request.user.delete()
+        
+        response = Response(status=204)
+        
+        response.delete_cookie('access')
+        response.delete_cookie('refresh')
+        
+        return response
