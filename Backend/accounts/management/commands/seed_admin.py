@@ -1,10 +1,9 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-from accounts.serializers import SignUpSerializer
+from accounts.serializers import UserSignUpSerializer
 import getpass
 
 User = get_user_model()
-
 
 class Command(BaseCommand):
     help = 'Crea un administrador solicitando datos por consola'
@@ -16,6 +15,7 @@ class Command(BaseCommand):
         first_name = input("Nombre: ")
         last_name = input("Apellido: ")
         email = input("Email: ")
+        phone_number = input("Telefono: ")
         password = getpass.getpass("Password: ")
 
         # Preparar datos
@@ -24,11 +24,12 @@ class Command(BaseCommand):
             "last_name": last_name,
             "email": email,
             "password": password,
-            "role": "admin",
+            "phone_number": phone_number,
+            "role": "Administrador",
         }
 
         # Usar serializer
-        serializer = SignUpSerializer(data=data)
+        serializer = UserSignUpSerializer(data=data)
 
         if serializer.is_valid():
             serializer.save()
