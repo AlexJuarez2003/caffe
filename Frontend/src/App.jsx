@@ -11,15 +11,17 @@ function App() {
     <Router>
       <div className="min-h-screen bg-[#f3f4ed]">
         <Routes>
-          {/* 1. Al entrar a la app (/) ahora mostramos el Login */}
-          <Route path="/" element={<Login />} />
+
+          <Route path="/" element={<SignUp />} />
+
+          <Route path="/login" element={<Login />} />
 
           <Route path="/signup" element={<SignUp />} />
           
-          {/* 2. El Login te mandará aquí directamente */}
           <Route path="/menu" element={<FoodMenu />} />
           
           <Route path="/perfil" element={<UserProfile />} />
+          
           <Route path="/historial" element={<HistorialPedidos />} />
           
           {/* Redirección por si escriben una ruta que no existe */}

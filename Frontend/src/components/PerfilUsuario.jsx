@@ -11,30 +11,31 @@ import {
   Edit3,
   Settings,
   Clock,
+  LogOut,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { fetchWithAuth } from "../helper/FetchWithAuth";
 
 function UserProfile() {
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchWithAuth("http://localhost:8000/accounts/profile/", {
-      method: "GET",
-    })
-      .then((res) => {
-        if (!res || !res.ok) throw new Error("Not authenticated");
-        return res.json();
-      })
-      .then((data) => {
-        console.log(data);
-        setUser(data);
-      })
-      .catch(() => {
-        window.location.href = "/login";
-      });
-  }, []);
+  // Obtener datos de usuario de navegador
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
+  // Eliminar datos de sesión
+  const cerrarSesion = async () => {
+    await fetchWithAuth("http://localhost:8000/accounts/logout/", {
+      method: "POST",
+      Credentials: "include",
+    });
+
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
 
   const InfoRow = ({ Icono, label, value }) => (
     <div className="flex items-center gap-4 py-4 px-2 hover:bg-gray-50 transition-colors rounded-xl group">
@@ -63,7 +64,9 @@ function UserProfile() {
             <div className="text-center">
               <div className="relative inline-block">
                 <div className="w-32 h-32 bg-orange-500 rounded-[2.5rem] flex items-center justify-center text-4xl font-black shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300">
-                  {user.first_name + " " + user.last_name}
+                  {user.first_name
+                    ? user.first_name[0] + user.last_name[0]
+                    : "NA"}
                 </div>
                 <div className="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-md">
                   <Edit3 className="w-4 h-4 text-orange-600" />
@@ -97,9 +100,12 @@ function UserProfile() {
               </button>
 
               {/* Botón: Configuración */}
-              <button className="w-full py-3 px-6 border-2 border-white/10 hover:bg-white/5 text-white rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 opacity-60 hover:opacity-100">
-                <Settings className="w-4 h-4 text-gray-400" />
-                Configuración
+              <button
+                onClick={cerrarSesion}
+                className="w-full py-3 px-6 border-2 border-white/10 hover:bg-white/5 text-white rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 opacity-60 hover:opacity-100"
+              >
+                <LogOut className="w-4 h-4 text-gray-400" />
+                Cerrar sesión
               </button>
             </div>
           </div>
@@ -110,43 +116,68 @@ function UserProfile() {
               <h3 className="text-3xl font-black text-[#2d3a1a] tracking-tight">
                 Información Personal
               </h3>
-              <Settings className="text-gray-300 w-6 h-6 hover:rotate-90 transition-transform cursor-pointer" />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
+              <div className="space-y-4">
+                {user.role == "Cliente" && (
+                  <>
+                    <h4 className="text-orange-500 font-black text-xs uppercase tracking-tighter ml-2">
+                      Académico
+                    </h4>
+                    <div className="bg-gray-50 rounded-4x1 p-4">
+                      <InfoRow
+                        Icono={User}
+                        label="No. Control"
+                        value={user.profile?.control_number}
+                      />
+                      <InfoRow
+                        Icono={Briefcase}
+                        label="Carrera"
+                        value={user.profile?.department}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {user.role == "Cocinero" && (
+                  <>
+                    <h4 className="text-orange-500 font-black text-xs uppercase tracking-tighter ml-2">
+                      Académico
+                    </h4>
+                    <div className="bg-gray-50 rounded-4x1 p-4">
+                      <InfoRow
+                        Icono={User}
+                        label="Turno"
+                        value={user.profile?.shift}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {user.role == "Repartidor" && (
+                  <>
+                    <h4 className="text-orange-500 font-black text-xs uppercase tracking-tighter ml-2">
+                      Logístico
+                    </h4>
+                    <div className="bg-gray-50 rounded-4x1 p-4">
+                      <InfoRow
+                        Icono={User}
+                        label="Área"
+                        value={user.profile?.delivery_area}
+                      />
+                    </div>
+                  </>
+                )}
+                
+              </div>
+
               <div className="space-y-4">
                 <h4 className="text-orange-500 font-black text-xs uppercase tracking-tighter ml-2">
                   Seguridad
                 </h4>
                 <div className="bg-gray-50 rounded-4x1 p-4">
-                  <InfoRow
-                    Icono={Mail}
-                    label="Email Institucional"
-                    value={user.email}
-                  />
-                  <InfoRow
-                    Icono={KeyRound}
-                    label="Contraseña"
-                    value="••••••••••••"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h4 className="text-orange-500 font-black text-xs uppercase tracking-tighter ml-2">
-                  Académico
-                </h4>
-                <div className="bg-gray-50 rounded-4x1 p-4">
-                  <InfoRow
-                    Icono={User}
-                    label="No. Control"
-                    value="22161115"
-                  />
-                  <InfoRow
-                    Icono={Briefcase}
-                    label="Carrera"
-                    value="Mi carrera"
-                  />
+                  <InfoRow Icono={Mail} label="Email" value={user.email} />
                 </div>
               </div>
 
@@ -163,7 +194,7 @@ function UserProfile() {
                   <InfoRow
                     Icono={CalendarDays}
                     label="Miembro desde"
-                    value={user.creation_date}
+                    value={user?.creation_date?.split("T")[0] || ""}
                   />
                 </div>
               </div>

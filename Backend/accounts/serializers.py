@@ -123,8 +123,51 @@ class DeliverySignUpSerializer(serializers.ModelSerializer):
 # AUTHENTICATION CLASSE
 class LoginSerializer(TokenObtainPairSerializer):
     
-    pass
+    def validate(self, attrs):
+        
+        # Generate tokens
+        data = super().validate(attrs)
+        
+        user = self.user
+        
+        profile_data = None
+        
+        # Role based profile data
+        if user.role == "Cliente":
+            customer = Customer.objects.get(user=user)
+            
+            profile_data = {
+                "department": customer.department,
+                "control_number": customer.control_number
+            }
+        
+        elif user.role == "Cocinero":
+            chef = Chef.objects.get(user=user)
+            
+            profile_data = {
+                "shift": chef.shift
+            }
+        
+        elif user.role == "Repartidor":
+            delivery = Delivery.objects.get(user=user)
+            
+            profile_data = {
+                "delivery_area": delivery.delivery_area,
+                "is_available": delivery.is_available
+            }
+        
+        # Add user data to response
+        data["user"] = {
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "phone_number": user.phone_number,
+            "creation_date": user.creation_date,
+            "role": user.role,
+            "profile": profile_data
+        }
 
+        return data
 
 # UPDATE CLASSES
 
@@ -132,7 +175,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['phone_number', 'first_name', 'last_name']
+        fields = ['phone_number', 'first_name', 'last_name', 'role']
 
 
 # Mixin to update basic data in each role

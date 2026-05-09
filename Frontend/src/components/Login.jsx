@@ -28,10 +28,22 @@ const Login = () => {
         },
       );
 
+      const data = await response.json();
+
       if (!response.ok) {
         setError("Credenciales incorrectas");
       } else {
+
+        // Guardar en localstorage
+        localStorage.setItem(
+          "user",
+          JSON.stringify(data.user)
+        )
+
+        // Redirige
         navigate("/menu");
+
+        // console.log(JSON.stringify(data))
       }
     } catch (err) {
       setError("Error de conexión");
@@ -100,6 +112,16 @@ const Login = () => {
             >
               Iniciar Sesión <LogIn className="w-5 h-5 text-orange-500" />
             </button>
+
+            <p className="text-center text-xs text-gray-500 mt-4">
+              ¿No tienes cuenta?{" "}
+              <a
+                href="/signup"
+                className="font-bold text-[#2d3a1a] hover:underline cursor-pointer"
+              >
+                Regístrate
+              </a>
+            </p>
 
             <p className="text-center text-[10px] text-gray-400 font-bold uppercase mt-6">
               © 2026 - Departamento de Sistemas
