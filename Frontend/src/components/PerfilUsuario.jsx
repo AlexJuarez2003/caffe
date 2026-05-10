@@ -1,191 +1,169 @@
-import React, { useState, useEffect } from "react";
-// Importamos todos los iconos necesarios, incluyendo Clock y Settings
-import {
-  Mail,
-  KeyRound,
-  Briefcase,
-  User,
-  Phone,
-  CalendarDays,
-  Zap,
-  Edit3,
-  Settings,
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Pencil, 
+  Settings, 
+  LogOut, 
+  Mail, 
+  Lock, 
+  Phone, 
+  CreditCard, 
+  Calendar,
   Clock,
-} from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { fetchWithAuth } from "../helper/FetchWithAuth";
+  LayoutGrid,
+  UtensilsCrossed 
+} from 'lucide-react';
+import ModalEditarPerfil from './ModalEditarPerfil'; 
 
-function UserProfile() {
-  const [user, setUser] = useState(null);
+const PerfilUsuario = () => {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchWithAuth("http://localhost:8000/accounts/profile/", {
-      method: "GET",
-    })
-      .then((res) => {
-        if (!res || !res.ok) throw new Error("Not authenticated");
-        return res.json();
-      })
-      .then((data) => {
-        console.log(data);
-        setUser(data);
-      })
-      .catch(() => {
-        window.location.href = "/login";
-      });
-  }, []);
+  const [perfil, setPerfil] = useState({
+    email: "correo@itoaxaca.edu.mx",
+    noControl: "22161115",
+    carrera: "Sistemas Computacionales",
+    telefono: "951 000 0000",
+    miembroDesde: "2026-02-15"
+  });
 
-  const InfoRow = ({ Icono, label, value }) => (
-    <div className="flex items-center gap-4 py-4 px-2 hover:bg-gray-50 transition-colors rounded-xl group">
-      <div className="p-3 rounded-2xl bg-[#2d3a1a]/10 group-hover:bg-[#2d3a1a]/20 transition-all">
-        <Icono className="w-5 h-5 text-[#2d3a1a]" />
-      </div>
-      <div className="flex flex-col">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-          {label}
-        </span>
-        <span className="text-sm font-semibold text-[#2d3a1a]">{value}</span>
-      </div>
-    </div>
-  );
-
-  if (!user) {
-    return <p>Cargando...</p>;
-  }
+  const handleSaveProfile = (newData) => {
+    setPerfil({ ...perfil, ...newData });
+    setIsModalOpen(false);
+  };
 
   return (
-    <div className="min-h-screen bg-[#f3f4ed] py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-gray-100 flex flex-col md:flex-row">
-          {/* BARRA LATERAL IZQUIERDA */}
-          <div className="bg-[#2d3a1a] w-full md:w-80 p-10 text-white flex flex-col items-center justify-between">
-            <div className="text-center">
-              <div className="relative inline-block">
-                <div className="w-32 h-32 bg-orange-500 rounded-[2.5rem] flex items-center justify-center text-4xl font-black shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300">
-                  {user.first_name + " " + user.last_name}
-                </div>
-                <div className="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-md">
-                  <Edit3 className="w-4 h-4 text-orange-600" />
-                </div>
-              </div>
-              <h2 className="mt-6 text-2xl font-black leading-tight tracking-tight">
-                {user.first_name} <br /> {user.last_name}
-              </h2>
-              <p className="mt-2 text-orange-400 font-bold text-xs uppercase tracking-widest">
-                {user.role}
-              </p>
-            </div>
-
-            {/* SECCIÓN DE BOTONES ACTUALIZADA */}
-            <div className="mt-10 w-full space-y-3">
-              {/* Botón: Menú */}
-              <button
-                onClick={() => navigate("/menu")}
-                className="w-full py-4 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-orange-900/20 flex items-center justify-center gap-2 active:scale-95"
+    <div className="min-h-screen bg-[#f3f4ed] flex items-center justify-center p-4 md:p-10 font-sans">
+      <div className="max-w-6xl w-full bg-white rounded-[4rem] shadow-2xl overflow-hidden border border-gray-100 flex flex-col md:flex-row min-h-[600px]">
+        
+        {/* COLUMNA IZQUIERDA (VERDE) */}
+        <div className="w-full md:w-2/5 p-10 bg-[#2d3a1a] flex flex-col justify-between items-center text-white">
+          <div className="flex flex-col items-center w-full">
+            <div className="w-40 h-40 bg-orange-500 rounded-[2.5rem] relative mb-12 shadow-2xl">
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="absolute -bottom-2 -right-2 p-3 bg-white text-[#2d3a1a] rounded-full shadow-lg hover:text-orange-500 transition-all active:scale-90 z-20"
               >
-                Ver Menú de Hoy
+                <Pencil className="w-5 h-5" />
               </button>
+            </div>
 
-              {/* Botón: Historial (Mis Pedidos) */}
-              <button
-                onClick={() => navigate("/historial")}
-                className="w-full py-3 px-6 border-2 border-white/10 hover:bg-white/5 text-white rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+            <nav className="w-full space-y-4">
+              <button 
+                onClick={() => navigate('/menu')}
+                className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg flex items-center justify-center gap-3 transition-all active:scale-95"
               >
-                <Clock className="w-4 h-4 text-orange-400" />
-                Mis Pedidos
+                <UtensilsCrossed className="w-4 h-4" /> Ver Menú de Hoy
               </button>
 
-              {/* Botón: Configuración */}
-              <button className="w-full py-3 px-6 border-2 border-white/10 hover:bg-white/5 text-white rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 opacity-60 hover:opacity-100">
-                <Settings className="w-4 h-4 text-gray-400" />
-                Configuración
+              <button 
+                onClick={() => navigate('/historial')}
+                className="w-full py-4 bg-[#3d4d24] text-white/70 hover:text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 active:scale-95"
+              >
+                <Clock className="w-4 h-4 text-orange-500" /> Mis Pedidos
               </button>
-            </div>
+
+              <button className="w-full py-4 bg-[#3d4d24] text-white/70 hover:text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 active:scale-95">
+                <Settings className="w-4 h-4 text-orange-500" /> Configuración
+              </button>
+            </nav>
           </div>
-
-          {/* CUERPO CENTRAL DE INFORMACIÓN */}
-          <div className="flex-1 p-10 md:p-14 bg-white">
-            <div className="flex justify-between items-center mb-10">
-              <h3 className="text-3xl font-black text-[#2d3a1a] tracking-tight">
-                Información Personal
-              </h3>
-              <Settings className="text-gray-300 w-6 h-6 hover:rotate-90 transition-transform cursor-pointer" />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
-              <div className="space-y-4">
-                <h4 className="text-orange-500 font-black text-xs uppercase tracking-tighter ml-2">
-                  Seguridad
-                </h4>
-                <div className="bg-gray-50 rounded-4x1 p-4">
-                  <InfoRow
-                    Icono={Mail}
-                    label="Email Institucional"
-                    value={user.email}
-                  />
-                  <InfoRow
-                    Icono={KeyRound}
-                    label="Contraseña"
-                    value="••••••••••••"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h4 className="text-orange-500 font-black text-xs uppercase tracking-tighter ml-2">
-                  Académico
-                </h4>
-                <div className="bg-gray-50 rounded-4x1 p-4">
-                  <InfoRow
-                    Icono={User}
-                    label="No. Control"
-                    value="22161115"
-                  />
-                  <InfoRow
-                    Icono={Briefcase}
-                    label="Carrera"
-                    value="Mi carrera"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-4 sm:col-span-2 mt-4">
-                <h4 className="text-orange-500 font-black text-xs uppercase tracking-tighter ml-2">
-                  Contacto y Registro
-                </h4>
-                <div className="bg-gray-50 rounded-4x1 p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <InfoRow
-                    Icono={Phone}
-                    label="Teléfono móvil"
-                    value={user.phone_number}
-                  />
-                  <InfoRow
-                    Icono={CalendarDays}
-                    label="Miembro desde"
-                    value={user.creation_date}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-12 flex justify-end">
-              <button className="group relative px-8 py-4 bg-orange-500 text-white font-black rounded-3xl overflow-hidden shadow-xl shadow-orange-500/30 hover:scale-105 transition-all">
-                <span className="relative z-10 flex items-center gap-2">
-                  Actualizar Datos <Zap className="w-4 h-4 fill-white" />
-                </span>
-                <div className="absolute inset-0 bg-linear-to-r from-orange-600 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              </button>
-            </div>
-          </div>
+          
+          <button 
+            onClick={() => navigate('/')}
+            className="mt-8 flex items-center gap-2 text-white/50 hover:text-white font-bold text-[10px] uppercase tracking-widest transition-all"
+          >
+            <LogOut className="w-4 h-4" /> Cerrar Sesión
+          </button>
         </div>
 
-        <p className="mt-8 text-center text-[#2d3a1a]/40 text-xs font-bold tracking-widest uppercase">
-          Portal de Estudiantes • Instituto Tecnológico de Oaxaca
-        </p>
+        {/* COLUMNA DERECHA (DATOS) */}
+        <div className="w-full md:w-3/5 p-10 md:p-14 bg-white relative">
+          <div className="flex justify-between items-center mb-10">
+            <h1 className="text-4xl font-black text-[#2d3a1a] tracking-tighter">Información Personal</h1>
+            <Settings className="text-gray-200 w-6 h-6 cursor-pointer hover:text-orange-500 transition-colors" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* SECCIÓN SEGURIDAD */}
+            <div className="space-y-6">
+              <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">Seguridad</h3>
+              <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-[90px]">
+                <div className="flex-shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400"><Mail className="w-5 h-5"/></div>
+                <div className="min-w-0">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">Email Institucional</p>
+                  <p className="text-sm font-bold text-gray-700 truncate">{perfil.email}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-[90px]">
+                <div className="flex-shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400"><Lock className="w-5 h-5"/></div>
+                <div className="min-w-0">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">Contraseña</p>
+                  <p className="text-sm font-bold text-gray-700">••••••••••••</p>
+                </div>
+              </div>
+            </div>
+
+            {/* SECCIÓN ACADÉMICO */}
+            <div className="space-y-6">
+              <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">Académico</h3>
+              <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-[90px]">
+                <div className="flex-shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400"><CreditCard className="w-5 h-5"/></div>
+                <div className="min-w-0">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">No. Control</p>
+                  <p className="text-sm font-bold text-gray-700 truncate">{perfil.noControl}</p>
+                </div>
+              </div>
+              {/* FIX PARA CARRERA: Usamos break-words en lugar de truncate */}
+              <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-[90px]">
+                <div className="flex-shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400"><LayoutGrid className="w-5 h-5"/></div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">Carrera</p>
+                  <p className="text-sm font-bold text-gray-700 break-words leading-tight">
+                    {perfil.carrera}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* SECCIÓN CONTACTO */}
+            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-6">
+                <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">Contacto y Registro</h3>
+                <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-[90px]">
+                  <div className="flex-shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400"><Phone className="w-5 h-5"/></div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">Teléfono Móvil</p>
+                    <p className="text-sm font-bold text-gray-700 truncate">{perfil.telefono}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-end pb-2">
+                <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl w-full min-h-[90px]">
+                  <div className="flex-shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400"><Calendar className="w-5 h-5"/></div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">Miembro desde</p>
+                    <p className="text-sm font-bold text-gray-700 truncate">{perfil.miembroDesde}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-center text-[9px] text-gray-300 font-bold uppercase mt-12">
+            Portal de Estudiantes • Instituto Tecnológico de Oaxaca
+          </p>
+        </div>
       </div>
+
+      <ModalEditarPerfil 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        currentData={perfil}
+        onSave={handleSaveProfile}
+      />
     </div>
   );
-}
+};
 
-export default UserProfile;
+export default PerfilUsuario;
