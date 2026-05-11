@@ -9,9 +9,11 @@ const FoodMenu = () => {
   const [categoria, setCategoria] = useState('Todos');
   const [isCartOpen, setIsCartOpen] = useState(false);
   
-  // --- NUEVOS ESTADOS PARA EL MODAL ---
+  // --- ESTADOS PARA EL MODAL Y CARRITO ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [carrito, setCarrito] = useState([]); 
+  const [notificacion, setNotificacion] = useState({ visible: false, nombre: "" });
 
   const productos = [
     {
@@ -46,10 +48,27 @@ const FoodMenu = () => {
     }
   ];
 
-  // Función para abrir el modal con la info del producto
+  // Función para agregar directo (Botón naranja +)
+  const agregarAlCarrito = (producto) => {
+    // Generamos un idUnico para poder eliminarlo después sin borrar duplicados
+    const nuevoItem = { ...producto, idUnico: Date.now(), cantidad: 1 };
+    setCarrito(prev => [...prev, nuevoItem]); 
+    
+    setNotificacion({ visible: true, nombre: producto.nombre });
+    setTimeout(() => setNotificacion({ visible: false, nombre: "" }), 2000);
+  };
+
   const openCustomModal = (producto) => {
     setSelectedProduct(producto);
     setIsModalOpen(true);
+  };
+
+  const onAgregarDesdeModal = (productoPersonalizado) => {
+    // También asignamos idUnico aquí para que el botón de eliminar funcione
+    setCarrito(prev => [...prev, { ...productoPersonalizado, idUnico: Date.now(), cantidad: 1 }]);
+    setIsModalOpen(false);
+    setNotificacion({ visible: true, nombre: productoPersonalizado.nombre });
+    setTimeout(() => setNotificacion({ visible: false, nombre: "" }), 2000);
   };
 
   const categorias = ['Todos', 'Comida', 'Bebidas', 'Postres', 'Snacks'];
@@ -58,13 +77,26 @@ const FoodMenu = () => {
     <div className="p-8 bg-[#f3f4ed] min-h-screen pb-24">
       <div className="max-w-6xl mx-auto">
         
-        {/* Componentes de Interfaz (Carrito y Modal) */}
-        <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+        {/* Notificación Flotante de éxito */}
+        {notificacion.visible && (
+          <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[200] bg-[#2d3a1a] text-white px-8 py-4 rounded-full font-black shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
+             ¡{notificacion.nombre} agregado exitosamente! 🥳
+          </div>
+        )}
+
+        {/* Componentes de Interfaz */}
+        <CartDrawer 
+          isOpen={isCartOpen} 
+          onClose={() => setIsCartOpen(false)} 
+          items={carrito} 
+          setItems={setCarrito} // <--- CONEXIÓN PARA ELIMINAR ACTIVADA
+        />
         
         <CustomModal 
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)} 
           producto={selectedProduct} 
+          onAgregar={onAgregarDesdeModal} 
         />
 
         <button 
@@ -131,9 +163,8 @@ const FoodMenu = () => {
                     >
                       <Settings2 className="w-6 h-6" />
                     </button>
-                    {/* El botón de "+" ahora también abre el carrito lateral */}
                     <button 
-                      onClick={() => setIsCartOpen(true)} 
+                      onClick={() => agregarAlCarrito(producto)} 
                       className="p-4 bg-orange-500 text-white rounded-[1.5rem] hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/30 active:scale-90"
                     >
                       <Plus className="w-6 h-6" />
@@ -145,14 +176,16 @@ const FoodMenu = () => {
           ))}
         </div>
 
-        {/* BOTÓN FLOTANTE: Abre el CartDrawer */}
+        {/* BOTÓN FLOTANTE: Muestra cantidad real en el carrito */}
         <button 
           onClick={() => setIsCartOpen(true)}
           className="fixed bottom-10 right-10 z-50 bg-[#2d3a1a] text-white p-6 rounded-[2.5rem] shadow-2xl shadow-[#2d3a1a]/40 hover:scale-110 transition-all active:scale-95 flex items-center gap-4 group"
         >
           <div className="relative">
             <ShoppingBag className="w-7 h-7 text-orange-500" />
-            <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#2d3a1a]">2</span>
+            <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#2d3a1a]">
+              {carrito.length}
+            </span>
           </div>
           <span className="font-black text-xs uppercase tracking-[0.2em] pr-2">Ver mi pedido</span>
         </button>
