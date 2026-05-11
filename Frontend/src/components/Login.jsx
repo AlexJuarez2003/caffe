@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogIn, Lock, User } from 'lucide-react';
+import { LogIn, Lock, User, UserPlus } from 'lucide-react'; 
 import logoCafeMApp from '../assets/logo_cafemapp.png'; 
 
 const Login = () => {
@@ -13,7 +13,6 @@ const Login = () => {
 
   const manejarLogin = async (e) => {
     e.preventDefault();
-
     try {
       const response = await fetch(
         "http://localhost:8000/accounts/login/",
@@ -21,10 +20,7 @@ const Login = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({
-            email,
-            password,
-          }),
+          body: JSON.stringify({ email, password }),
         },
       );
 
@@ -48,11 +44,10 @@ const Login = () => {
     } catch (err) {
       setError("Error de conexión");
     }
-
   };
 
   return (
-    <div className="min-h-screen bg-[#f3f4ed] flex items-center justify-center p-4 md:p-10">
+    <div className="min-h-screen bg-[#f3f4ed] flex items-center justify-center p-4 md:p-8">
       <div className="max-w-6xl w-full bg-white rounded-[4rem] shadow-2xl overflow-hidden border border-gray-100 flex flex-col md:flex-row">
         
         {/* COLUMNA 1: IMAGEN DE AMBIENTE */}
@@ -68,19 +63,21 @@ const Login = () => {
         </div>
 
         {/* COLUMNA 2: LOGO Y FORMULARIO */}
-        <div className="w-full md:w-2/5 p-10 md:p-14 flex flex-col justify-center bg-white">
+        {/* Bajamos el padding de p-14 a p-10 para que quepa el nuevo botón */}
+        <div className="w-full md:w-2/5 p-8 md:p-10 flex flex-col justify-center bg-white">
           
-          <div className="text-center mb-10">
-            {/* AQUÍ VA TU LOGO GRANDE */}
+          <div className="text-center mb-8">
             <img 
               src={logoCafeMApp} 
               alt="Logo CafeMApp" 
-              className="w-48 mx-auto mb-4 drop-shadow-md"
+              className="w-40 mx-auto mb-4 drop-shadow-md"
             />
             <p className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.4em]">Instituto Tecnológico de Oaxaca</p>
           </div>
 
-          <form onSubmit={manejarLogin} className="space-y-5">
+          <form onSubmit={manejarLogin} className="space-y-4">
+            {error && <p className="text-red-500 text-[10px] font-bold text-center uppercase">{error}</p>}
+            
             <div className="space-y-3">
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
@@ -107,7 +104,9 @@ const Login = () => {
               </div>
             </div>
 
+            {/* BOTÓN PRINCIPAL */}
             <button 
+              type="submit"
               className="w-full py-4 bg-[#2d3a1a] hover:bg-[#3d4d24] text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95"
             >
               Iniciar Sesión <LogIn className="w-5 h-5 text-orange-500" />
@@ -123,7 +122,19 @@ const Login = () => {
               </a>
             </p>
 
+            {/* BOTÓN DE REGISTRO - NUEVO */}
+            <button 
+              type="button"
+              onClick={() => navigate('/signup')}
+              className="w-full py-3 border-2 border-gray-100 hover:border-orange-500 text-gray-400 hover:text-orange-600 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 active:scale-95"
+            >
+              Crear cuenta <UserPlus className="w-4 h-4" />
+            </button>
+
+            <p className="text-center text-[10px] text-gray-400 font-bold uppercase mt-4"></p>
+
             <p className="text-center text-[10px] text-gray-400 font-bold uppercase mt-6">
+            
               © 2026 - Departamento de Sistemas
             </p>
           </form>
