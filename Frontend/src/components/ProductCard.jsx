@@ -1,34 +1,89 @@
-import React from 'react';
+import React, { useState } from 'react';
+import ProductCard from './ProductCard';
+import CustomModal from './ModalPersonalizar'; // El que ajustamos con las categorías
+import { ShoppingCart } from 'lucide-react';
 
-// Esta es la pieza que muestra un café o comida
-const ProductCard = ({ nombre, precio, descripcion, etiquetas }) => {
+const MenuComida = () => {
+  // 1. Estado para el carrito y el modal
+  const [carrito, setCarrito] = useState([]);
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 2. Datos de ejemplo (Esto vendrá de tu backend en Django después)
+  const productos = [
+    {
+      id: 1,
+      nombre: "Chilaquiles Oaxaqueños",
+      precio: 65,
+      descripcion: "Con tasajo y salsa de la casa.",
+      cat: "Comida",
+      etiquetas: ["Picante", "Popular"],
+      img: "https://url-de-tu-imagen.jpg" //
+    },
+    {
+      id: 2,
+      nombre: "Café Latte",
+      precio: 45,
+      descripcion: "Café de grano recién molido con leche espumosa.",
+      cat: "Bebidas",
+      etiquetas: ["Caliente"],
+      img: "https://url-de-tu-cafe.jpg"
+    }
+  ];
+
+  // 3. Funciones de control
+  const agregarDirectoAlCarrito = (producto) => {
+    setCarrito([...carrito, { ...producto, cantidad: 1 }]);
+    console.log("Carrito actualizado:", carrito);
+  };
+
+  const abrirPersonalizacion = (producto) => {
+    setProductoSeleccionado(producto);
+    setIsModalOpen(true);
+  };
+
+  const guardarProductoPersonalizado = (productoConExtras) => {
+    setCarrito([...carrito, productoConExtras]);
+    setIsModalOpen(false);
+  };
+
   return (
-    <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '15px', margin: '10px', width: '250px', textAlign: 'center', boxShadow: '2px 2px 10px rgba(0,0,0,0.1)' }}>
-      <div style={{ backgroundColor: '#f0f0f0', height: '150px', borderRadius: '5px', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-         🖼️ Imagen aquí
-      </div>
-      <h3 style={{ margin: '5px 0' }}>{nombre}</h3>
-      <p style={{ fontSize: '0.9em', color: '#666' }}>{descripcion}</p>
-      
-      {/* Esto muestra si es "Picante" o "Nuevo" */}
-      <div style={{ marginBottom: '10px' }}>
-        {etiquetas && etiquetas.map(tag => (
-          <span key={tag} style={{ backgroundColor: '#ffeb3b', padding: '2px 5px', fontSize: '0.7em', borderRadius: '3px', marginRight: '5px' }}>
-            {tag}
-          </span>
+    <div className="min-h-screen bg-[#f8f9f5] p-8">
+      {/* Header del Menú */}
+      <header className="mb-12">
+        <h1 className="text-[#2d3a1a] text-6xl font-black italic tracking-tighter">Nuestro Menú</h1>
+        <p className="text-gray-400 font-bold tracking-widest uppercase text-xs mt-2">
+          Instituto Tecnológico de Oaxaca
+        </p>
+      </header>
+
+      {/* Rejilla de Productos */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {productos.map(prod => (
+          <ProductCard 
+            key={prod.id}
+            producto={prod}
+            onAgregar={agregarDirectoAlCarrito}
+            onPersonalizar={abrirPersonalizacion}
+          />
         ))}
       </div>
 
-      <p style={{ fontWeight: 'bold', color: '#2ecc71' }}>${precio}</p>
-      
-      <button style={{ background: '#6f4e37', color: 'white', border: 'none', padding: '8px', borderRadius: '5px', cursor: 'pointer', marginRight: '5px' }}>
-        Agregar
-      </button>
-      <button style={{ background: '#e67e22', color: 'white', border: 'none', padding: '8px', borderRadius: '5px', cursor: 'pointer' }}>
-        Personalizar
+      {/* Modal de Personalización */}
+      <CustomModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        producto={productoSeleccionado}
+        onAgregar={guardarProductoPersonalizado}
+      />
+
+      {/* Botón flotante del carrito (opcional) */}
+      <button className="fixed bottom-8 right-8 bg-[#2d3a1a] text-white p-6 rounded-full shadow-2xl flex items-center gap-4 hover:scale-105 transition-transform">
+        <ShoppingCart />
+        <span className="font-black">{carrito.length} items</span>
       </button>
     </div>
   );
 };
 
-export default ProductCard;
+export default MenuComida;
