@@ -72,7 +72,7 @@ const Login = () => {
               alt="Logo CafeMApp" 
               className="w-40 mx-auto mb-4 drop-shadow-md"
             />
-            <p className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.4em]">Instituto Tecnológico de Oaxaca</p>
+            <p className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.4em]">Iniciar Sesión</p>
           </div>
 
           <form onSubmit={manejarLogin} className="space-y-4">
@@ -104,7 +104,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* BOTÓN PRINCIPAL */}
             <button 
               type="submit"
               className="w-full py-4 bg-[#2d3a1a] hover:bg-[#3d4d24] text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95"
@@ -121,15 +120,6 @@ const Login = () => {
                 Regístrate
               </a>
             </p>
-
-            {/* BOTÓN DE REGISTRO - NUEVO */}
-            <button 
-              type="button"
-              onClick={() => navigate('/signup')}
-              className="w-full py-3 border-2 border-gray-100 hover:border-orange-500 text-gray-400 hover:text-orange-600 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 active:scale-95"
-            >
-              Crear cuenta <UserPlus className="w-4 h-4" />
-            </button>
 
             <p className="text-center text-[10px] text-gray-400 font-bold uppercase mt-4"></p>
 

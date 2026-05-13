@@ -12,7 +12,7 @@ function App() {
       <div className="min-h-screen bg-[#f3f4ed]">
         <Routes>
 
-          <Route path="/" element={<SignUp />} />
+          <Route path="/" element={<Login />} />
 
           <Route path="/login" element={<Login />} />
 
