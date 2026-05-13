@@ -30,9 +30,16 @@ Aplicación web para la gestión de una cafetería. Implementa un frontend moder
 ```bash
 cd Backend
 python -m venv env
-env\Scripts\activate
+.\env\Scripts\activate
 
+pip install django
+pip install djangorestframework
+pip install djangorestframework-simplejwt
+pip install django-cors-headers
+
+python manage.py makemigrations
 python manage.py migrate
+
 python manage.py runserver
 ```
 

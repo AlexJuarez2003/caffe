@@ -89,7 +89,7 @@ const HistorialPedidos = () => {
               {/* DETALLES EXPANDIDOS (Lo que pediste) */}
               {idExpandido === pedido.id && (
                 <div className="px-8 pb-8 animate-in slide-in-from-top-4 duration-300">
-                  <div className="h-[1px] bg-gray-100 w-full mb-6"></div>
+                  <div className="h-px bg-gray-100 w-full mb-6"></div>
                   
                   <div className="space-y-6">
                     {/* Sección: ¿Qué pidió? */}

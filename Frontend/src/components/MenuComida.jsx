@@ -79,7 +79,7 @@ const FoodMenu = () => {
         
         {/* Notificación Flotante de éxito */}
         {notificacion.visible && (
-          <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[200] bg-[#2d3a1a] text-white px-8 py-4 rounded-full font-black shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="fixed top-10 left-1/2 -translate-x-1/2 z-200 bg-[#2d3a1a] text-white px-8 py-4 rounded-full font-black shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
              ¡{notificacion.nombre} agregado exitosamente! 🥳
           </div>
         )}
@@ -159,13 +159,13 @@ const FoodMenu = () => {
                   <div className="flex gap-3">
                     <button 
                       onClick={() => openCustomModal(producto)}
-                      className="p-4 bg-gray-50 text-[#2d3a1a] rounded-[1.5rem] hover:bg-gray-100 transition-colors border border-gray-100"
+                      className="p-4 bg-gray-50 text-[#2d3a1a] rounded-3x1 hover:bg-gray-100 transition-colors border border-gray-100"
                     >
                       <Settings2 className="w-6 h-6" />
                     </button>
                     <button 
                       onClick={() => agregarAlCarrito(producto)} 
-                      className="p-4 bg-orange-500 text-white rounded-[1.5rem] hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/30 active:scale-90"
+                      className="p-4 bg-orange-500 text-white rounded-3x1 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/30 active:scale-90"
                     >
                       <Plus className="w-6 h-6" />
                     </button>

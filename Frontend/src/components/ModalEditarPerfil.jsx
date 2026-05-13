@@ -1,19 +1,67 @@
 import React, { useState } from 'react';
 import { X, Mail, Lock, Phone, Save, CreditCard, LayoutGrid } from 'lucide-react';
+import { fetchWithAuth } from '../helper/FetchWithAuth';
+import { useAuth } from '../context/AuthContext';
 
 const ModalEditarPerfil = ({ isOpen, onClose, currentData, onSave }) => {
   if (!isOpen) return null;
 
-  const [formData, setFormData] = useState({ ...currentData });
+  const { refreshUser } = useAuth();
 
-  const handleChange = (e) => {
+  const [formData, setFormData] = useState({
+    control_number: currentData.control_number? currentData.control_number : "",
+    department: currentData.department? currentData.department : "",
+    user: {
+      email: currentData.user.email || "",
+      first_name: currentData.user.first_name || "",
+      last_name: currentData.user.last_name || "",
+      phone_number: currentData.user.phone_number || "",
+      password: "",
+    },
+  });
+
+  const handleUserChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+
+    setFormData({
+      ...formData,
+      user: {
+        ...formData.user,
+        [name]: value,
+      },
+    });
   };
 
-  const handleSubmit = (e) => {
+  const handleCustomerChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave(formData);
+
+    try {
+      const response = await fetchWithAuth("http://localhost:8000/accounts/profile/customer/", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      await refreshUser();
+      onClose();
+
+
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -29,61 +77,79 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, onSave }) => {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
-            {/* Email */}
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
               <input 
                 name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Email Institucional"
+                value={formData.user.email}
+                onChange={handleUserChange}
+                placeholder="Email"
                 className="w-full pl-12 pr-6 py-4 bg-gray-50 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-orange-500 outline-none"
               />
             </div>
 
-            {/* No. Control */}
-            <div className="relative">
-              <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
-              <input 
-                name="noControl"
-                value={formData.noControl}
-                onChange={handleChange}
-                placeholder="No. de Control"
-                className="w-full pl-12 pr-6 py-4 bg-gray-50 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-orange-500 outline-none"
-              />
-            </div>
-
-            {/* Carrera */}
-            <div className="relative">
-              <LayoutGrid className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
-              <input 
-                name="carrera"
-                value={formData.carrera}
-                onChange={handleChange}
-                placeholder="Carrera"
-                className="w-full pl-12 pr-6 py-4 bg-gray-50 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-orange-500 outline-none"
-              />
-            </div>
-
-            {/* Teléfono */}
             <div className="relative">
               <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
               <input 
-                name="telefono"
-                value={formData.telefono}
-                onChange={handleChange}
+                name="phone_number"
+                value={formData.user.phone_number}
+                onChange={handleUserChange}
                 placeholder="Teléfono"
                 className="w-full pl-12 pr-6 py-4 bg-gray-50 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-orange-500 outline-none"
               />
             </div>
+            
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
+              <input 
+                name="first_name"
+                value={formData.user.first_name}
+                onChange={handleUserChange}
+                placeholder="Nombre"
+                className="w-full pl-12 pr-6 py-4 bg-gray-50 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-orange-500 outline-none"
+              />
+            </div>
 
-            {/* Contraseña */}
+            <div className="relative">
+              <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
+              <input 
+                name="last_name"
+                value={formData.user.last_name}
+                onChange={handleUserChange}
+                placeholder="Apellidos"
+                className="w-full pl-12 pr-6 py-4 bg-gray-50 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-orange-500 outline-none"
+              />
+            </div>
+
+            <div className="relative">
+              <LayoutGrid className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
+              <input 
+                name="control_number"
+                value={formData.control_number}
+                onChange={handleCustomerChange}
+                placeholder="Número de control"
+                className="w-full pl-12 pr-6 py-4 bg-gray-50 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-orange-500 outline-none"
+              />
+            </div>
+
+            <div className="relative">
+              <LayoutGrid className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
+              <input 
+                name="department"
+                value={formData.department}
+                onChange={handleCustomerChange}
+                placeholder="Departamento"
+                className="w-full pl-12 pr-6 py-4 bg-gray-50 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-orange-500 outline-none"
+              />
+            </div>
+
             <div className="relative md:col-span-2">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
               <input 
                 type="password"
                 name="password"
-                onChange={handleChange}
+                value={formData.user.password}
+                onChange={handleUserChange}
                 placeholder="Nueva Contraseña (dejar vacío para no cambiar)"
                 className="w-full pl-12 pr-6 py-4 bg-gray-50 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-orange-500 outline-none"
               />

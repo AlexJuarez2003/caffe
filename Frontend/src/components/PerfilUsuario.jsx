@@ -1,46 +1,62 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Pencil, 
-  Settings, 
-  LogOut, 
-  Mail, 
-  Lock, 
-  Phone, 
-  CreditCard, 
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Pencil,
+  Settings,
+  LogOut,
+  Mail,
+  Lock,
+  Phone,
+  CreditCard,
   Calendar,
   Clock,
   LayoutGrid,
-  UtensilsCrossed 
-} from 'lucide-react';
-import ModalEditarPerfil from './ModalEditarPerfil'; 
+  UtensilsCrossed,
+} from "lucide-react";
+import { fetchWithAuth } from "../helper/FetchWithAuth";
+import ModalEditarPerfil from "./ModalEditarPerfil";
+import { useAuth } from "../context/AuthContext";
 
-const PerfilUsuario = () => {
+function PerfilUsuario() {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [perfil, setPerfil] = useState({
-    email: "correo@itoaxaca.edu.mx",
-    noControl: "22161115",
-    carrera: "Sistemas Computacionales",
-    telefono: "951 000 0000",
-    miembroDesde: "2026-02-15"
-  });
+  // Obtener datos de usuario de navegador
+  const { user } = useAuth();
 
-  const handleSaveProfile = (newData) => {
-    setPerfil({ ...perfil, ...newData });
-    setIsModalOpen(false);
+  // Eliminar datos de sesión
+  const cerrarSesion = async () => {
+    await fetchWithAuth("http://localhost:8000/accounts/logout/", {
+      method: "POST",
+      Credentials: "include",
+    });
+
+    localStorage.removeItem("user");
+    navigate("/login");
   };
+
+  const iniciarSesion = async () => {
+    navigate("/login");
+  }
+
+  if (!user) {
+    return (
+      <>
+        <p>Cargando...</p>
+        <button onClick={iniciarSesion}>Iniciar sesión</button>
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f3f4ed] flex items-center justify-center p-4 md:p-10 font-sans">
-      <div className="max-w-6xl w-full bg-white rounded-[4rem] shadow-2xl overflow-hidden border border-gray-100 flex flex-col md:flex-row min-h-[600px]">
-        
+      <div className="max-w-6xl w-full bg-white rounded-[4rem] shadow-2xl overflow-hidden border border-gray-100 flex flex-col md:flex-row min-h-150">
         {/* COLUMNA IZQUIERDA (VERDE) */}
         <div className="w-full md:w-2/5 p-10 bg-[#2d3a1a] flex flex-col justify-between items-center text-white">
           <div className="flex flex-col items-center w-full">
-            <div className="w-40 h-40 bg-orange-500 rounded-[2.5rem] relative mb-12 shadow-2xl">
-              <button 
+            <div className="w-40 h-40 bg-orange-500 rounded-[2.5rem] flex items-center justify-center relative mb-0 text-4xl font-black shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300">
+              {user.user?.first_name ? user.user.first_name[0] + user.user.last_name[0] : "NA"}
+              <button
                 onClick={() => setIsModalOpen(true)}
                 className="absolute -bottom-2 -right-2 p-3 bg-white text-[#2d3a1a] rounded-full shadow-lg hover:text-orange-500 transition-all active:scale-90 z-20"
               >
@@ -48,16 +64,24 @@ const PerfilUsuario = () => {
               </button>
             </div>
 
+            <div className="mb-15 justify-items-center">
+              <h2 className="mt-6 text-2xl font-black leading-tight tracking-tight">
+                {user.user?.first_name} <br /> {user.user?.last_name}
+              </h2>
+              <p className="mt-2 text-orange-400 font-bold text-xs uppercase tracking-widest">
+                {user.user?.role}
+              </p>
+            </div>
             <nav className="w-full space-y-4">
-              <button 
-                onClick={() => navigate('/menu')}
+              <button
+                onClick={() => navigate("/menu")}
                 className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg flex items-center justify-center gap-3 transition-all active:scale-95"
               >
                 <UtensilsCrossed className="w-4 h-4" /> Ver Menú de Hoy
               </button>
 
-              <button 
-                onClick={() => navigate('/historial')}
+              <button
+                onClick={() => navigate("/historial")}
                 className="w-full py-4 bg-[#3d4d24] text-white/70 hover:text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 active:scale-95"
               >
                 <Clock className="w-4 h-4 text-orange-500" /> Mis Pedidos
@@ -68,9 +92,9 @@ const PerfilUsuario = () => {
               </button>
             </nav>
           </div>
-          
-          <button 
-            onClick={() => navigate('/')}
+
+          <button
+            onClick={cerrarSesion}
             className="mt-8 flex items-center gap-2 text-white/50 hover:text-white font-bold text-[10px] uppercase tracking-widest transition-all"
           >
             <LogOut className="w-4 h-4" /> Cerrar Sesión
@@ -80,47 +104,75 @@ const PerfilUsuario = () => {
         {/* COLUMNA DERECHA (DATOS) */}
         <div className="w-full md:w-3/5 p-10 md:p-14 bg-white relative">
           <div className="flex justify-between items-center mb-10">
-            <h1 className="text-4xl font-black text-[#2d3a1a] tracking-tighter">Información Personal</h1>
+            <h1 className="text-4xl font-black text-[#2d3a1a] tracking-tighter">
+              Información Personal
+            </h1>
             <Settings className="text-gray-200 w-6 h-6 cursor-pointer hover:text-orange-500 transition-colors" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* SECCIÓN SEGURIDAD */}
             <div className="space-y-6">
-              <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">Seguridad</h3>
-              <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-[90px]">
-                <div className="flex-shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400"><Mail className="w-5 h-5"/></div>
+              <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">
+                Seguridad
+              </h3>
+              <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-22.5">
+                <div className="shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400">
+                  <Mail className="w-5 h-5" />
+                </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] text-gray-400 font-bold uppercase">Email Institucional</p>
-                  <p className="text-sm font-bold text-gray-700 truncate">{perfil.email}</p>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">
+                    Email Institucional
+                  </p>
+                  <p className="text-sm font-bold text-gray-700 truncate">
+                    {user.user?.email}
+                  </p>
                 </div>
               </div>
-              <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-[90px]">
-                <div className="flex-shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400"><Lock className="w-5 h-5"/></div>
+              <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-22.5">
+                <div className="shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400">
+                  <Lock className="w-5 h-5" />
+                </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] text-gray-400 font-bold uppercase">Contraseña</p>
-                  <p className="text-sm font-bold text-gray-700">••••••••••••</p>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">
+                    Contraseña
+                  </p>
+                  <p className="text-sm font-bold text-gray-700">
+                    ••••••••••••
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* SECCIÓN ACADÉMICO */}
             <div className="space-y-6">
-              <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">Académico</h3>
-              <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-[90px]">
-                <div className="flex-shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400"><CreditCard className="w-5 h-5"/></div>
+              <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">
+                Académico
+              </h3>
+              <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-22.5">
+                <div className="shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400">
+                  <CreditCard className="w-5 h-5" />
+                </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] text-gray-400 font-bold uppercase">No. Control</p>
-                  <p className="text-sm font-bold text-gray-700 truncate">{perfil.noControl}</p>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">
+                    No. Control
+                  </p>
+                  <p className="text-sm font-bold text-gray-700 truncate">
+                    {user.control_number? user.control_number : ""}
+                  </p>
                 </div>
               </div>
               {/* FIX PARA CARRERA: Usamos break-words en lugar de truncate */}
-              <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-[90px]">
-                <div className="flex-shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400"><LayoutGrid className="w-5 h-5"/></div>
+              <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-22.5">
+                <div className="shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400">
+                  <LayoutGrid className="w-5 h-5" />
+                </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] text-gray-400 font-bold uppercase">Carrera</p>
-                  <p className="text-sm font-bold text-gray-700 break-words leading-tight">
-                    {perfil.carrera}
+                  <p className="text-[10px] text-gray-400 font-bold uppercase">
+                    Carrera
+                  </p>
+                  <p className="text-sm font-bold text-gray-700 wrap-break-word leading-tight">
+                    {user.department? user.department : ""}
                   </p>
                 </div>
               </div>
@@ -129,21 +181,35 @@ const PerfilUsuario = () => {
             {/* SECCIÓN CONTACTO */}
             <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-6">
-                <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">Contacto y Registro</h3>
-                <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-[90px]">
-                  <div className="flex-shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400"><Phone className="w-5 h-5"/></div>
+                <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">
+                  Contacto y Registro
+                </h3>
+                <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-22.5">
+                  <div className="shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400">
+                    <Phone className="w-5 h-5" />
+                  </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase">Teléfono Móvil</p>
-                    <p className="text-sm font-bold text-gray-700 truncate">{perfil.telefono}</p>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">
+                      Teléfono Móvil
+                    </p>
+                    <p className="text-sm font-bold text-gray-700 truncate">
+                      {user.user.phone_number? user.user.phone_number : ""}
+                    </p>
                   </div>
                 </div>
               </div>
               <div className="flex items-end pb-2">
-                <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl w-full min-h-[90px]">
-                  <div className="flex-shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400"><Calendar className="w-5 h-5"/></div>
+                <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl w-full min-h-22.5">
+                  <div className="shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400">
+                    <Calendar className="w-5 h-5" />
+                  </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase">Miembro desde</p>
-                    <p className="text-sm font-bold text-gray-700 truncate">{perfil.miembroDesde}</p>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">
+                      Miembro desde
+                    </p>
+                    <p className="text-sm font-bold text-gray-700 truncate">
+                      {user.user.creation_date.split("T")[0] || ""}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -156,14 +222,13 @@ const PerfilUsuario = () => {
         </div>
       </div>
 
-      <ModalEditarPerfil 
+      <ModalEditarPerfil
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        currentData={perfil}
-        onSave={handleSaveProfile}
+        currentData={user}
       />
     </div>
   );
-};
+}
 
 export default PerfilUsuario;

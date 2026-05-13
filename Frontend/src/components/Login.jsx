@@ -24,10 +24,22 @@ const Login = () => {
         },
       );
 
+      const data = await response.json();
+
       if (!response.ok) {
         setError("Credenciales incorrectas");
       } else {
+
+        // Guardar en localstorage
+        localStorage.setItem(
+          "user",
+          JSON.stringify(data.user)
+        )
+
+        // Redirige
         navigate("/menu");
+
+        // console.log(JSON.stringify(data))
       }
     } catch (err) {
       setError("Error de conexión");
@@ -60,7 +72,7 @@ const Login = () => {
               alt="Logo CafeMApp" 
               className="w-40 mx-auto mb-4 drop-shadow-md"
             />
-            <p className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.4em]">Instituto Tecnológico de Oaxaca</p>
+            <p className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.4em]">Iniciar Sesión</p>
           </div>
 
           <form onSubmit={manejarLogin} className="space-y-4">
@@ -92,7 +104,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* BOTÓN PRINCIPAL */}
             <button 
               type="submit"
               className="w-full py-4 bg-[#2d3a1a] hover:bg-[#3d4d24] text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95"
@@ -100,16 +111,20 @@ const Login = () => {
               Iniciar Sesión <LogIn className="w-5 h-5 text-orange-500" />
             </button>
 
-            {/* BOTÓN DE REGISTRO - NUEVO */}
-            <button 
-              type="button"
-              onClick={() => navigate('/signup')}
-              className="w-full py-3 border-2 border-gray-100 hover:border-orange-500 text-gray-400 hover:text-orange-600 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 active:scale-95"
-            >
-              Crear cuenta <UserPlus className="w-4 h-4" />
-            </button>
+            <p className="text-center text-xs text-gray-500 mt-4">
+              ¿No tienes cuenta?{" "}
+              <a
+                href="/signup"
+                className="font-bold text-[#2d3a1a] hover:underline cursor-pointer"
+              >
+                Regístrate
+              </a>
+            </p>
 
-            <p className="text-center text-[10px] text-gray-400 font-bold uppercase mt-4">
+            <p className="text-center text-[10px] text-gray-400 font-bold uppercase mt-4"></p>
+
+            <p className="text-center text-[10px] text-gray-400 font-bold uppercase mt-6">
+            
               © 2026 - Departamento de Sistemas
             </p>
           </form>

@@ -29,15 +29,17 @@ function SignUp() {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/accounts/signup/", {
+      const response = await fetch("http://localhost:8000/accounts/signup/customer/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
-          password
-        }),
+          "user": {
+            "email": email,
+            "password": password
+          }
+        })
       });
 
       const data = await response.json();
