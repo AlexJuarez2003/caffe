@@ -239,6 +239,21 @@ class CustomerUpdateSerializer(UserNestedUpdateMixin, serializers.ModelSerialize
         self.update_user(instance, user_data)
         
         return instance
+    
+    def to_representation(self, instance):
+        return {
+            "user": {
+                "creation_date": instance.user.creation_date,
+                "email": instance.user.email,
+                "first_name": instance.user.first_name,
+                "last_name": instance.user.last_name,
+                "phone_number": instance.user.phone_number,
+                "profile": {
+                    "control_number": instance.control_number,
+                    "department": instance.department
+                }
+            }
+        }
 
 
 class ChefUpdateSerializer(UserNestedUpdateMixin, serializers.ModelSerializer):

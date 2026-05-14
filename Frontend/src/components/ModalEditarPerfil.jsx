@@ -1,21 +1,37 @@
-import React, { useState } from 'react';
-import { X, Mail, Lock, Phone, Save, CreditCard, LayoutGrid } from 'lucide-react';
-import { fetchWithAuth } from '../helper/FetchWithAuth';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from "react";
+import {
+  X,
+  Mail,
+  Lock,
+  Phone,
+  Save,
+  CreditCard,
+  LayoutGrid,
+} from "lucide-react";
+import { fetchWithAuth } from "../helper/FetchWithAuth";
+//import { updateUser } from '../helper/updateUser';
 
-const ModalEditarPerfil = ({ isOpen, onClose, currentData, onSave }) => {
+const ModalEditarPerfil = ({
+  isOpen,
+  onClose,
+  currentData,
+  onSave,
+  getUser,
+}) => {
   if (!isOpen) return null;
 
-  const { refreshUser } = useAuth();
-
   const [formData, setFormData] = useState({
-    control_number: currentData.control_number? currentData.control_number : "",
-    department: currentData.department? currentData.department : "",
+    control_number: currentData.profile.control_number
+      ? currentData.profile.control_number
+      : "",
+    department: currentData.profile.department
+      ? currentData.profile.department
+      : "",
     user: {
-      email: currentData.user.email || "",
-      first_name: currentData.user.first_name || "",
-      last_name: currentData.user.last_name || "",
-      phone_number: currentData.user.phone_number || "",
+      email: currentData.email || "",
+      first_name: currentData.first_name || "",
+      last_name: currentData.last_name || "",
+      phone_number: currentData.phone_number || "",
       password: "",
     },
   });
@@ -45,20 +61,26 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, onSave }) => {
     e.preventDefault();
 
     try {
-      const response = await fetchWithAuth("http://localhost:8000/accounts/profile/customer/", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetchWithAuth(
+        "http://localhost:8000/accounts/profile/customer/",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
         },
-        body: JSON.stringify(formData),
-      });
+      );
 
-      const data = await response.json();
+      if (response.ok) {
+        const data = await response.json();
 
-      await refreshUser();
-      onClose();
+        localStorage.setItem("user", JSON.stringify(data.user));
 
+        getUser();
 
+        onClose();
+      }
     } catch (error) {
       console.error(error);
     }
@@ -67,19 +89,22 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, onSave }) => {
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
       <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl p-10 relative animate-in fade-in zoom-in duration-200">
-        
-        <button onClick={onClose} className="absolute top-8 right-8 text-gray-400 hover:text-orange-500 transition-colors">
+        <button
+          onClick={onClose}
+          className="absolute top-8 right-8 text-gray-400 hover:text-orange-500 transition-colors"
+        >
           <X className="w-6 h-6" />
         </button>
 
-        <h3 className="text-2xl font-black text-[#2d3a1a] mb-8 tracking-tighter">Editar Información Personal</h3>
+        <h3 className="text-2xl font-black text-[#2d3a1a] mb-8 tracking-tighter">
+          Editar Información Personal
+        </h3>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
-              <input 
+              <input
                 name="email"
                 value={formData.user.email}
                 onChange={handleUserChange}
@@ -90,7 +115,7 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, onSave }) => {
 
             <div className="relative">
               <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
-              <input 
+              <input
                 name="phone_number"
                 value={formData.user.phone_number}
                 onChange={handleUserChange}
@@ -98,10 +123,10 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, onSave }) => {
                 className="w-full pl-12 pr-6 py-4 bg-gray-50 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-orange-500 outline-none"
               />
             </div>
-            
+
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
-              <input 
+              <input
                 name="first_name"
                 value={formData.user.first_name}
                 onChange={handleUserChange}
@@ -112,7 +137,7 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, onSave }) => {
 
             <div className="relative">
               <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
-              <input 
+              <input
                 name="last_name"
                 value={formData.user.last_name}
                 onChange={handleUserChange}
@@ -123,7 +148,7 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, onSave }) => {
 
             <div className="relative">
               <LayoutGrid className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
-              <input 
+              <input
                 name="control_number"
                 value={formData.control_number}
                 onChange={handleCustomerChange}
@@ -134,7 +159,7 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, onSave }) => {
 
             <div className="relative">
               <LayoutGrid className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
-              <input 
+              <input
                 name="department"
                 value={formData.department}
                 onChange={handleCustomerChange}
@@ -145,7 +170,7 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, onSave }) => {
 
             <div className="relative md:col-span-2">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
-              <input 
+              <input
                 type="password"
                 name="password"
                 value={formData.user.password}
@@ -156,11 +181,12 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, onSave }) => {
             </div>
           </div>
 
-          <button 
+          <button
             type="submit"
             className="w-full py-4 bg-[#2d3a1a] hover:bg-[#3d4d24] text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 mt-4"
           >
-            Guardar Todos los Cambios <Save className="w-4 h-4 text-orange-500" />
+            Guardar Todos los Cambios{" "}
+            <Save className="w-4 h-4 text-orange-500" />
           </button>
         </form>
       </div>

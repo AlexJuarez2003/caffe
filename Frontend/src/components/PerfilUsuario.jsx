@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Pencil,
@@ -15,14 +15,25 @@ import {
 } from "lucide-react";
 import { fetchWithAuth } from "../helper/FetchWithAuth";
 import ModalEditarPerfil from "./ModalEditarPerfil";
-import { useAuth } from "../context/AuthContext";
 
 function PerfilUsuario() {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [user, setUser] = useState(null);
+
   // Obtener datos de usuario de navegador
-  const { user } = useAuth();
+  function getUser() {
+    const u = JSON.parse(localStorage.getItem("user"));
+
+    if (u) {
+      setUser(u);
+    }
+  };
+
+  useEffect(() => {
+    getUser();
+  }, []);
 
   // Eliminar datos de sesión
   const cerrarSesion = async () => {
@@ -55,7 +66,7 @@ function PerfilUsuario() {
         <div className="w-full md:w-2/5 p-10 bg-[#2d3a1a] flex flex-col justify-between items-center text-white">
           <div className="flex flex-col items-center w-full">
             <div className="w-40 h-40 bg-orange-500 rounded-[2.5rem] flex items-center justify-center relative mb-0 text-4xl font-black shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300">
-              {user.user?.first_name ? user.user.first_name[0] + user.user.last_name[0] : "NA"}
+              {user?.first_name ? user.first_name[0] + user.last_name[0] : "NA"}
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="absolute -bottom-2 -right-2 p-3 bg-white text-[#2d3a1a] rounded-full shadow-lg hover:text-orange-500 transition-all active:scale-90 z-20"
@@ -66,10 +77,10 @@ function PerfilUsuario() {
 
             <div className="mb-15 justify-items-center">
               <h2 className="mt-6 text-2xl font-black leading-tight tracking-tight">
-                {user.user?.first_name} <br /> {user.user?.last_name}
+                {user?.first_name} <br /> {user?.last_name}
               </h2>
               <p className="mt-2 text-orange-400 font-bold text-xs uppercase tracking-widest">
-                {user.user?.role}
+                {user?.role ? user.role : ""}
               </p>
             </div>
             <nav className="w-full space-y-4">
@@ -125,7 +136,7 @@ function PerfilUsuario() {
                     Email Institucional
                   </p>
                   <p className="text-sm font-bold text-gray-700 truncate">
-                    {user.user?.email}
+                    {user.email}
                   </p>
                 </div>
               </div>
@@ -158,7 +169,7 @@ function PerfilUsuario() {
                     No. Control
                   </p>
                   <p className="text-sm font-bold text-gray-700 truncate">
-                    {user.control_number? user.control_number : ""}
+                    {user.profile?.control_number? user.profile.control_number : ""}
                   </p>
                 </div>
               </div>
@@ -172,7 +183,7 @@ function PerfilUsuario() {
                     Carrera
                   </p>
                   <p className="text-sm font-bold text-gray-700 wrap-break-word leading-tight">
-                    {user.department? user.department : ""}
+                    {user.profile?.department? user.profile.department : ""}
                   </p>
                 </div>
               </div>
@@ -193,7 +204,7 @@ function PerfilUsuario() {
                       Teléfono Móvil
                     </p>
                     <p className="text-sm font-bold text-gray-700 truncate">
-                      {user.user.phone_number? user.user.phone_number : ""}
+                      {user?.phone_number? user.phone_number : ""}
                     </p>
                   </div>
                 </div>
@@ -208,7 +219,7 @@ function PerfilUsuario() {
                       Miembro desde
                     </p>
                     <p className="text-sm font-bold text-gray-700 truncate">
-                      {user.user.creation_date.split("T")[0] || ""}
+                      {user?.creation_date?.split("T")[0] || ""}
                     </p>
                   </div>
                 </div>
@@ -226,6 +237,7 @@ function PerfilUsuario() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         currentData={user}
+        getUser = {getUser}
       />
     </div>
   );
