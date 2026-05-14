@@ -18,7 +18,7 @@ urlpatterns = [
     path('refresh/', RefreshView.as_view(), name='refresh'),
     path('logout/', LogoutView.as_view(), name='logout'),
     
-    # Update URLs
+    # Read/Update/Delete URLs
     path('profile/', UserProfileUpdateView.as_view(), name='profile'),
     path('profile/customer/', CustomerProfileUpdateView.as_view(), name='profile-customer'),
     path('profile/chef/', ChefProfileUpdateView.as_view(), name='profile-chef'),

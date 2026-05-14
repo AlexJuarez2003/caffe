@@ -1,0 +1,409 @@
+{
+  "delivery_areas": [
+    {
+      "name": "Área Administrativa",
+      "description": "Oficinas administrativas y atención escolar",
+      "estimated_time": 10,
+      "buildings": [
+        {
+          "name": "Edificio de la Dirección",
+          "classrooms": [
+            {
+              "name": "Dirección General",
+              "floor": 1
+            },
+            {
+              "name": "Sala Administrativa",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "División de Estudios Profesionales",
+          "classrooms": [
+            {
+              "name": "DEP-1",
+              "floor": 1
+            },
+            {
+              "name": "DEP-2",
+              "floor": 2
+            }
+          ]
+        },
+        {
+          "name": "Departamento de Servicios Escolares",
+          "classrooms": [
+            {
+              "name": "Control Escolar",
+              "floor": 1
+            },
+            {
+              "name": "Archivo Escolar",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Departamento de Desarrollo Académico",
+          "classrooms": [
+            {
+              "name": "DDA-1",
+              "floor": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Área de Sistemas y Computación",
+      "description": "Laboratorios y edificios relacionados con computación",
+      "estimated_time": 15,
+      "buildings": [
+        {
+          "name": "Centro de Cómputo y Sistemas Computacionales",
+          "classrooms": [
+            {
+              "name": "CC-1",
+              "floor": 1
+            },
+            {
+              "name": "Laboratorio Redes",
+              "floor": 2
+            }
+          ]
+        },
+        {
+          "name": "Edificio K",
+          "classrooms": [
+            {
+              "name": "K-1",
+              "floor": 1
+            },
+            {
+              "name": "K-2",
+              "floor": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Área de Ingeniería",
+      "description": "Departamentos y laboratorios de ingenierías",
+      "estimated_time": 20,
+      "buildings": [
+        {
+          "name": "Departamento de Ingeniería Industrial",
+          "classrooms": [
+            {
+              "name": "Industrial-1",
+              "floor": 1
+            },
+            {
+              "name": "Industrial-2",
+              "floor": 2
+            }
+          ]
+        },
+        {
+          "name": "Laboratorio de Ingeniería Industrial",
+          "classrooms": [
+            {
+              "name": "Lab Producción",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Departamento de Ingeniería Electrónica",
+          "classrooms": [
+            {
+              "name": "Electrónica-1",
+              "floor": 1
+            },
+            {
+              "name": "Electrónica-2",
+              "floor": 2
+            }
+          ]
+        },
+        {
+          "name": "Departamento de Ingeniería Eléctrica",
+          "classrooms": [
+            {
+              "name": "Eléctrica-1",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Laboratorio de Ingeniería Eléctrica",
+          "classrooms": [
+            {
+              "name": "Lab Circuitos",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Laboratorio y Departamento de Ingeniería Mecánica",
+          "classrooms": [
+            {
+              "name": "Mecánica-1",
+              "floor": 1
+            },
+            {
+              "name": "Taller Mecánico",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Laboratorio de Simulación",
+          "classrooms": [
+            {
+              "name": "Simulación-1",
+              "floor": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Área de Ciencias Básicas",
+      "description": "Laboratorios y departamentos científicos",
+      "estimated_time": 18,
+      "buildings": [
+        {
+          "name": "Departamento de Ciencias Básicas",
+          "classrooms": [
+            {
+              "name": "CB-1",
+              "floor": 1
+            },
+            {
+              "name": "CB-2",
+              "floor": 2
+            }
+          ]
+        },
+        {
+          "name": "Departamento de Ciencias de la Tierra",
+          "classrooms": [
+            {
+              "name": "Tierra-1",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Departamento de Química y Bioquímica",
+          "classrooms": [
+            {
+              "name": "QB-1",
+              "floor": 1
+            },
+            {
+              "name": "Laboratorio Bioquímica",
+              "floor": 2
+            }
+          ]
+        },
+        {
+          "name": "Laboratorio de Física Química",
+          "classrooms": [
+            {
+              "name": "FQ-1",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Laboratorio de Química Pesada",
+          "classrooms": [
+            {
+              "name": "QP-1",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Laboratorio de Microscopía",
+          "classrooms": [
+            {
+              "name": "Microscopía-1",
+              "floor": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Área Académica",
+      "description": "Aulas generales y edificios de clases",
+      "estimated_time": 12,
+      "buildings": [
+        {
+          "name": "Edificio A",
+          "classrooms": [
+            {
+              "name": "A-101",
+              "floor": 1
+            },
+            {
+              "name": "A-201",
+              "floor": 2
+            }
+          ]
+        },
+        {
+          "name": "Edificio B",
+          "classrooms": [
+            {
+              "name": "B-101",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Edificio C",
+          "classrooms": [
+            {
+              "name": "C-101",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Edificio D",
+          "classrooms": [
+            {
+              "name": "D-101",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Edificio E",
+          "classrooms": [
+            {
+              "name": "E-101",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Edificio F",
+          "classrooms": [
+            {
+              "name": "F-101",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Edificio G",
+          "classrooms": [
+            {
+              "name": "G-101",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Edificio H",
+          "classrooms": [
+            {
+              "name": "H-101",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Edificio I",
+          "classrooms": [
+            {
+              "name": "I-101",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Edificio L",
+          "classrooms": [
+            {
+              "name": "L-101",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Edificio S",
+          "classrooms": [
+            {
+              "name": "S-101",
+              "floor": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Área de Servicios y Vida Estudiantil",
+      "description": "Servicios generales y espacios estudiantiles",
+      "estimated_time": 8,
+      "buildings": [
+        {
+          "name": "Centro de Información",
+          "classrooms": [
+            {
+              "name": "Biblioteca",
+              "floor": 1
+            },
+            {
+              "name": "Sala de Consulta",
+              "floor": 2
+            }
+          ]
+        },
+        {
+          "name": "Cafetería",
+          "classrooms": [
+            {
+              "name": "Comedor Principal",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Gimnasio",
+          "classrooms": [
+            {
+              "name": "Cancha Principal",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Extraescolares",
+          "classrooms": [
+            {
+              "name": "Actividades Culturales",
+              "floor": 1
+            }
+          ]
+        },
+        {
+          "name": "Audiovisual de Ingeniería",
+          "classrooms": [
+            {
+              "name": "Sala Audiovisual",
+              "floor": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

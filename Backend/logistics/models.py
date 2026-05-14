@@ -9,20 +9,30 @@ class DeliveryArea(models.Model):
     
     def __str__(self):
         return self.name
-    
+
 class Building(models.Model):
     delivery_area = models.ForeignKey(DeliveryArea, on_delete=models.SET_NULL, null=True, related_name='buildings')
     
     name = models.CharField(max_length=50)
     
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'delivery_area'], name='unique_buildign_per_delivery_area')
+        ]
+    
     def __str__(self):
         return self.name
-    
+
 class Classroom(models.Model):
     building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='classrooms')
     
     name = models.CharField(max_length=20)
     floor = models.PositiveIntegerField(null=True, blank=True)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'building'], name='unique_classroom_per_building')
+        ]
     
     def __str__(self):
         return f"{self.name} - {self.building.name}"
