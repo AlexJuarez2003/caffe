@@ -9,7 +9,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { fetchWithAuth } from "../helper/FetchWithAuth";
-//import { updateUser } from '../helper/updateUser';
+import { notify } from "./Notificacion";
 
 const ModalEditarPerfil = ({
   isOpen,
@@ -73,6 +73,13 @@ const ModalEditarPerfil = ({
       );
 
       if (response.ok) {
+        notify({
+          type: "success",
+          title: "Datos actualizados",
+          message: "Sus cambios se han guardado correctamente.",
+          duration: 4000,
+        });
+
         const data = await response.json();
 
         localStorage.setItem("user", JSON.stringify(data.user));
@@ -82,7 +89,12 @@ const ModalEditarPerfil = ({
         onClose();
       }
     } catch (error) {
-      console.error(error);
+      notify({
+        type: "error",
+        title: "Error de conexión",
+        message: "No se ha podido comunicar con el servidor.",
+        duration: 4000,
+      });
     }
   };
 
