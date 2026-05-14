@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { User, Lock, Mail, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import logoCafeMApp from "../assets/logo_cafemapp.png";
-// import Notification from "../../components/Notification";
+import { notify } from "./Notificacion";
 
 function SignUp() {
   const [email, setEmail] = useState("");
@@ -11,48 +11,82 @@ function SignUp() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-
   const backgroundImage =
     "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1470&auto=format&fit=crop";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    /*
     if (!email || !password) {
-     
       return;
     }
 
     if (password.length < 8) {
-      
       return;
     }
-
+*/
     try {
-      const response = await fetch("http://localhost:8000/accounts/signup/customer/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "http://localhost:8000/accounts/signup/customer/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user: {
+              email: email,
+              password: password,
+            },
+          }),
         },
-        body: JSON.stringify({
-          "user": {
-            "email": email,
-            "password": password
-          }
-        })
-      });
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(JSON.stringify(data));
+        const mostrarErrores = (objetoError, prefijo = "") => {
+          Object.entries(objetoError).forEach(([llave, valor]) => {
+            if (Array.isArray(valor)) {
+              valor.forEach((msg) => {
+                notify({
+                  type: "error",
+                  title: `Error en ${llave}`,
+                  message: msg,
+                  duration: 6000,
+                });
+              });
+            } else if (typeof valor === "object" && valor !== null) {
+              mostrarErrores(valor, llave);
+            } else {
+              notify({
+                type: "error",
+                title: "Error",
+                message: valor,
+                duration: 6000,
+              });
+            }
+          });
+        };
+
+        mostrarErrores(data);
       } else {
-        console.log("Usuario creado:", data);
-        
+        notify({
+          type: "success",
+          title: "Cuenta creada",
+          message: "Puede iniciar sesión con su nueva cuenta.",
+          duration: 4000,
+        });
         navigate("/login");
       }
     } catch (error) {
-      
+      notify({
+        type: "error",
+        title: "Error de conexión",
+        message: "No se ha podido comunicar con el servidor.",
+        duration: 4000,
+      });
     }
   };
 
@@ -90,7 +124,6 @@ function SignUp() {
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-3">
-            
               {/* EMAIL */}
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-5 h-5" />
@@ -140,7 +173,6 @@ function SignUp() {
           </form>
         </div>
       </div>
-      
     </div>
   );
 }

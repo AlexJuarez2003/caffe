@@ -4,7 +4,6 @@ from django.contrib.auth.password_validation import validate_password
 from .models import User, Chef, Customer, Delivery
 from rest_framework import serializers
 
-
 # REGISTRATION CLASSES
 
 class UserSignUpSerializer(serializers.ModelSerializer):
@@ -19,15 +18,29 @@ class UserSignUpSerializer(serializers.ModelSerializer):
     
     # Pending
     def validate_email(self, value):
-        # regex=r'^\d{10}$'
         
-        return value
+        email = value.lower()
+        
+        allowed_domains = ["itoaxaca.edu.mx", "gmail.com"]
+        
+        domain = email.split('@')[-1]
+        
+        if domain not in allowed_domains:
+            raise serializers.ValidationError(
+                f"Solo se permiten correos de @{allowed_domains}"
+            )
+            
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError("Este correo ya está registrado.")
+            
+        return email
+        
     
     def validate_password(self, value):
         try:
             # Apply rules from validation defined in settings.py
             validate_password(value)
-            
+        
         except DjangoValidationError as e:
             raise serializers.ValidationError(e.messages)
         
@@ -66,6 +79,8 @@ class CustomerSignUpSerializer(serializers.ModelSerializer):
         
         # Create customer profile        
         customer = Customer.objects.create(user=user, **validated_data)
+        
+        customer.user = user
         
         return customer
 
@@ -248,6 +263,7 @@ class CustomerUpdateSerializer(UserNestedUpdateMixin, serializers.ModelSerialize
                 "first_name": instance.user.first_name,
                 "last_name": instance.user.last_name,
                 "phone_number": instance.user.phone_number,
+                "role": instance.user.role,
                 "profile": {
                     "control_number": instance.control_number,
                     "department": instance.department
