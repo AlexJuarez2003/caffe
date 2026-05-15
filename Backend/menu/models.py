@@ -56,6 +56,14 @@ class ProductIngredient(models.Model):
     
     unit = models.CharField(max_length=20)
     
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['product', 'ingredient'],
+                name='unique_product_ingredient'
+            )
+        ]
+    
     def __str__(self):
         return f"{self.product.name} - {self.ingredient.name}"    
 
