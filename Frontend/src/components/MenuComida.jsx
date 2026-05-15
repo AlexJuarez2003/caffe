@@ -21,7 +21,7 @@ const FoodMenu = () => {
       nombre: "Chilaquiles Oaxaqueños",
       precio: 65,
       desc: "Con tasajo y salsa de la casa.",
-      cat: "Comida",
+      cat: "meal",
       tiempo: "15 min",
       etiquetas: ["Picante", "Popular"],
       img: "https://images.unsplash.com/photo-1634325091807-684c798c5665?q=80&w=400"
@@ -31,7 +31,7 @@ const FoodMenu = () => {
       nombre: "Latte Especial",
       precio: 45,
       desc: "Café de grano con leche cremosa.",
-      cat: "Bebidas",
+      cat: "drink",
       tiempo: "5 min",
       etiquetas: ["Popular"],
       img: "https://images.unsplash.com/photo-1541167760496-162955ed8a9f?q=80&w=400"
@@ -41,7 +41,7 @@ const FoodMenu = () => {
       nombre: "Brownie Triple Chocolate",
       precio: 35,
       desc: "Postre horneado con nuez.",
-      cat: "Postres",
+      cat: "dessert",
       tiempo: "2 min",
       etiquetas: ["Nuevo"],
       img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=400"
@@ -71,7 +71,14 @@ const FoodMenu = () => {
     setTimeout(() => setNotificacion({ visible: false, nombre: "" }), 2000);
   };
 
-  const categorias = ['Todos', 'Comida', 'Bebidas', 'Postres', 'Snacks'];
+  // const categorias = ['Todos', 'Comida', 'Bebidas', 'Postres', 'Snacks'];
+  const categorias = [
+    { value: 'all', label: 'Todos' },
+    { value: 'meal', label: 'Comida' },
+    { value: 'drink', label: 'Bebidas' },
+    { value: 'dessert', label: 'Postres' },
+    { value: 'snack', label: 'Snacks' },
+  ];
 
   return (
     <div className="p-8 bg-[#f3f4ed] min-h-screen pb-24">
@@ -116,22 +123,23 @@ const FoodMenu = () => {
           <div className="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto">
             {categorias.map(cat => (
               <button 
-                key={cat}
-                onClick={() => setCategoria(cat)}
+                key={cat.value}
+                onClick={() => setCategoria(cat.value)}
                 className={`px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${
-                  categoria === cat 
+                  categoria === cat.value 
                   ? 'bg-[#2d3a1a] text-white shadow-xl' 
                   : 'bg-white text-[#2d3a1a] hover:bg-gray-100 shadow-sm'
                 }`}
               >
-                {cat}
+                {cat.label}
               </button>
             ))}
           </div>
         </div>
 
+        { /* Aquí inicia componente de producto */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {productos.filter(p => categoria === 'Todos' || p.cat === categoria).map(producto => (
+          {productos.filter(p => categoria === 'all' || p.cat === categoria).map(producto => (
             <div key={producto.id} className="group bg-white rounded-[3rem] overflow-hidden shadow-xl shadow-gray-200/50 hover:shadow-2xl transition-all border border-gray-100 relative">
               
               <div className="h-64 overflow-hidden relative">

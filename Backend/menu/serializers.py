@@ -154,12 +154,6 @@ class ProductWriteSerializer(serializers.ModelSerializer):
                 for item in ingredients_data
             ])
 
-            
-            '''
-            for item in ingredients_data:
-                ProductIngredient.objects.create(product=instance, **item)
-            '''
-        
         # Delete subtype only if type changes
         if old_type != new_type:
             Meal.objects.filter(product=instance).delete()
@@ -181,8 +175,9 @@ class ProductWriteSerializer(serializers.ModelSerializer):
             Snack.objects.create(product=instance, **snack_data)
         
         return instance
-    
-class ProductReadSerializer(serializers.ModelSerializer):
+
+# Returns all the information about a product
+class ProductDetailReadingSerializer(serializers.ModelSerializer):
     ingredients = ProductIngredientReadSerializer(
         source='product_ingredients',
         many=True
@@ -218,3 +213,17 @@ class ProductReadSerializer(serializers.ModelSerializer):
                 data.pop(field)
 
         return data
+
+# Return only the product list for the MENU
+class ProductListReadingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = [
+            'id',
+            'name',
+            'description',
+            'price',
+            'product_type',
+            'stock',
+            'is_available',
+        ]    
