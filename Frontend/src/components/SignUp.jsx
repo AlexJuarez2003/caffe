@@ -17,15 +17,6 @@ function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    /*
-    if (!email || !password) {
-      return;
-    }
-
-    if (password.length < 8) {
-      return;
-    }
-*/
     try {
       const response = await fetch(
         "http://localhost:8000/accounts/signup/customer/",

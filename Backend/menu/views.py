@@ -18,7 +18,7 @@ class ProductViewSet(ModelViewSet):
     def get_queryset(self):
 
         if self.action == 'list':
-            return Product.objects.all()
+            return Product.objects.filter(is_available=True)
 
         return Product.objects.prefetch_related(
             'product_ingredients__ingredient'

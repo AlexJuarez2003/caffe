@@ -65,21 +65,21 @@ class SnackSerializer(serializers.ModelSerializer):
 
 # Serializer for registering a new menu item
 class ProductWriteSerializer(serializers.ModelSerializer):
-    ingredients = ProductIngredientWriteSerializer(many=True, write_only=True)
+    ingredients = ProductIngredientWriteSerializer(many=True, write_only=True, required=False)
     
-    meal = MealSerializer(required=False)
-    drink = DrinkSerializer(required=False)
-    dessert = DessertSerializer(required=False)
-    snack = SnackSerializer(required=False)
+    meal = MealSerializer(required=False, allow_null=True)
+    drink = DrinkSerializer(required=False, allow_null=True)
+    dessert = DessertSerializer(required=False, allow_null=True)
+    snack = SnackSerializer(required=False, allow_null=True)
     
     class Meta:
         model = Product
         fields = [
-            'id', 'name', 'description', 'price', 'product_type', 'stock',
+            'id', 'name', 'description', 'price', 'product_type', 'stock', 'is_available', 'image_url',
             'ingredients',
             'meal', 'drink', 'dessert', 'snack'
         ]
-    
+        
     def validate(self, data):
         product_type = data.get('product_type')
         
@@ -216,6 +216,12 @@ class ProductDetailReadingSerializer(serializers.ModelSerializer):
 
 # Return only the product list for the MENU
 class ProductListReadingSerializer(serializers.ModelSerializer):
+    
+    meal = MealSerializer(read_only=True)
+    drink = DrinkSerializer(read_only=True)
+    dessert = DessertSerializer(read_only=True)
+    snack = SnackSerializer(read_only=True)
+    
     class Meta:
         model = Product
         fields = [
@@ -225,5 +231,18 @@ class ProductListReadingSerializer(serializers.ModelSerializer):
             'price',
             'product_type',
             'stock',
-            'is_available',
-        ]    
+            'meal',
+            'drink',
+            'dessert',
+            'snack',
+        ]
+    
+    def to_representation(self, instance):
+        
+        data = super().to_representation(instance)
+        
+        for field in ['meal', 'drink', 'dessert', 'snack']:
+            if data[field] is None:
+                data.pop(field)
+            
+        return data

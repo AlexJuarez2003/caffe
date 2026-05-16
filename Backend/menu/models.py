@@ -87,4 +87,3 @@ class Snack(models.Model):
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='snack')
     size = models.CharField(max_length=20)
     is_packaged = models.BooleanField(default=False)
-    
