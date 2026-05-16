@@ -9,7 +9,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { fetchWithAuth } from "../helper/FetchWithAuth";
-import { notify } from "./Notificacion";
+import { notify } from "../components/Notificacion";
 
 const ModalEditarPerfil = ({
   isOpen,

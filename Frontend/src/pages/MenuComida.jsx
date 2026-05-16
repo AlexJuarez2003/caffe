@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from "react";
 import {
   Clock,
-  Star,
-  Flame,
   Plus,
   Settings2,
   ShoppingBag,
-  ArrowLeft,
   CupSoda,
   Cake,
   Cookie,
+  User,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CartDrawer from "./CarritoLateral";
 import CustomModal from "./ModalPersonalizar";
 import { fetchWithAuth } from "../helper/FetchWithAuth";
-import { notify } from "./Notificacion";
+import { notify } from "../components/Notificacion";
 
 const FoodMenu = () => {
   const navigate = useNavigate();
@@ -51,41 +49,6 @@ const FoodMenu = () => {
       });
   }, []);
 
-  /*
-  const productos = [
-    {
-      id: 1,
-      nombre: "Chilaquiles Oaxaqueños",
-      precio: 65,
-      desc: "Con tasajo y salsa de la casa.",
-      cat: "meal",
-      tiempo: "15 min",
-      etiquetas: ["Picante", "Popular"],
-      img: "https://images.unsplash.com/photo-1634325091807-684c798c5665?q=80&w=400",
-    },
-    {
-      id: 2,
-      nombre: "Latte Especial",
-      precio: 45,
-      desc: "Café de grano con leche cremosa.",
-      cat: "drink",
-      tiempo: "5 min",
-      etiquetas: ["Popular"],
-      img: "https://images.unsplash.com/photo-1541167760496-162955ed8a9f?q=80&w=400",
-    },
-    {
-      id: 3,
-      nombre: "Brownie Triple Chocolate",
-      precio: 35,
-      desc: "Postre horneado con nuez.",
-      cat: "dessert",
-      tiempo: "2 min",
-      etiquetas: ["Nuevo"],
-      img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=400",
-    },
-  ];
-  */
-
   // Función para agregar directo (Botón naranja +)
   const agregarAlCarrito = (producto) => {
     // Generamos un idUnico para poder eliminarlo después sin borrar duplicados
@@ -112,7 +75,6 @@ const FoodMenu = () => {
     setTimeout(() => setNotificacion({ visible: false, nombre: "" }), 2000);
   };
 
-  // const categorias = ['Todos', 'Comida', 'Bebidas', 'Postres', 'Snacks'];
   const categorias = [
     { value: "all", label: "Todos" },
     { value: "meal", label: "Comida" },
@@ -124,6 +86,7 @@ const FoodMenu = () => {
   return (
     <div className="p-8 bg-[#f3f4ed] min-h-screen pb-24">
       <div className="max-w-6xl mx-auto">
+        
         {/* Notificación Flotante de éxito */}
         {notificacion.visible && (
           <div className="fixed top-10 left-1/2 -translate-x-1/2 z-200 bg-[#2d3a1a] text-white px-8 py-4 rounded-full font-black shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
@@ -146,18 +109,28 @@ const FoodMenu = () => {
           onAgregar={onAgregarDesdeModal}
         />
 
-        <button
-          onClick={() => navigate("/perfil")}
-          className="mb-8 flex items-center gap-2 text-[#2d3a1a] font-black text-xs uppercase tracking-widest hover:text-orange-500 transition-colors group"
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Ir a mi perfil
-        </button>
+        <div className="flex flex-row-reverse gap-6">
+          <button
+            onClick={() => navigate("/perfil")}
+            className="mb-8 flex items-center gap-2 text-[#2d3a1a] font-black text-xs uppercase tracking-widest hover:text-orange-500 transition-colors group"
+          >
+            <User className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            Ir a mi perfil
+          </button>
+
+          <button
+            onClick={() => navigate("/historial")}
+            className="mb-8 flex items-center gap-2 text-[#2d3a1a] font-black text-xs uppercase tracking-widest hover:text-orange-500 transition-colors group"
+          >
+            <Clock className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            Mis pedidos
+          </button>
+        </div>
 
         <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
           <div>
             <h2 className="text-5xl font-black text-[#2d3a1a] tracking-tighter italic">
-              Nuestro Menú
+              Menú de hoy
             </h2>
             <p className="text-gray-400 font-bold text-sm uppercase tracking-widest mt-2">
               Instituto Tecnológico de Oaxaca
@@ -181,7 +154,7 @@ const FoodMenu = () => {
           </div>
         </div>
 
-        {/* Aquí inicia componente de producto */}
+        {/* Item para el menú */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {productos
             .filter((p) => categoria === "all" || p.product_type === categoria)

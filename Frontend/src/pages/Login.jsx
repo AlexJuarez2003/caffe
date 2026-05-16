@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogIn, Lock, User, UserPlus } from "lucide-react";
 import logoCafeMApp from "../assets/logo_cafemapp.png";
-import { notify } from "./Notificacion";
+import { notify } from "../components/Notificacion";
 
 const Login = () => {
   const [email, setEmail] = useState("");

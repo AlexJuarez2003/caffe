@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { User, Lock, Mail, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import logoCafeMApp from "../assets/logo_cafemapp.png";
-import { notify } from "./Notificacion";
+import { notify } from "../components/Notificacion";
 
 function SignUp() {
   const [email, setEmail] = useState("");

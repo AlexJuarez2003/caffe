@@ -15,8 +15,11 @@ class Ingredient(models.Model):
     carbohydrates = models.FloatField(default=0)
     fat = models.FloatField(default=0)
     
-    extra_price = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     stock = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    allows_extra = models.BooleanField(default=True)
+    allows_removal = models.BooleanField(default=True)
+    extra_price = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     
     def __str__(self):
         return self.name
