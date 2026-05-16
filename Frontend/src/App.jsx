@@ -4,12 +4,12 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Login from "./components/Login";
-import UserProfile from "./components/PerfilUsuario";
-import FoodMenu from "./components/MenuComida";
-import HistorialPedidos from "./components/HistorialPedidos";
-import Carrito from "./components/Carrito";
-import SignUp from "./components/SignUp";
+import Login from './pages/Login';
+import UserProfile from "./pages/PerfilUsuario";
+import FoodMenu from "./pages/MenuComida";
+import HistorialPedidos from "./pages/HistorialPedidos";
+import Carrito from "./pages/Carrito";
+import SignUp from "./pages/SignUp";
 import { NotificationContainer } from "./components/Notificacion";
 
 function App() {

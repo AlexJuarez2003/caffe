@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { fetchWithAuth } from "../helper/FetchWithAuth";
 import ModalEditarPerfil from "./ModalEditarPerfil";
-import { notify } from "./Notificacion";
+import { notify } from "../components/Notificacion";
 
 function PerfilUsuario() {
   const navigate = useNavigate();

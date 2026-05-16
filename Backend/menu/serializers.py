@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Ingredient, ProductIngredient, Meal, Drink, Dessert, Snack, Product
+from django.db import transaction
 
 # Serializer to register a new ingredient
 class IngredientSerializer(serializers.ModelSerializer):
@@ -64,21 +65,21 @@ class SnackSerializer(serializers.ModelSerializer):
 
 # Serializer for registering a new menu item
 class ProductWriteSerializer(serializers.ModelSerializer):
-    ingredients = ProductIngredientWriteSerializer(many=True, write_only=True)
+    ingredients = ProductIngredientWriteSerializer(many=True, write_only=True, required=False)
     
-    meal = MealSerializer(required=False)
-    drink = DrinkSerializer(required=False)
-    dessert = DessertSerializer(required=False)
-    snack = SnackSerializer(required=False)
+    meal = MealSerializer(required=False, allow_null=True)
+    drink = DrinkSerializer(required=False, allow_null=True)
+    dessert = DessertSerializer(required=False, allow_null=True)
+    snack = SnackSerializer(required=False, allow_null=True)
     
     class Meta:
         model = Product
         fields = [
-            'id', 'name', 'description', 'price', 'product_type', 'stock',
+            'id', 'name', 'description', 'price', 'product_type', 'stock', 'is_available', 'image_url',
             'ingredients',
             'meal', 'drink', 'dessert', 'snack'
         ]
-    
+        
     def validate(self, data):
         product_type = data.get('product_type')
         
@@ -96,6 +97,7 @@ class ProductWriteSerializer(serializers.ModelSerializer):
         
         return data
     
+    @transaction.atomic
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients', [])
         
@@ -123,6 +125,7 @@ class ProductWriteSerializer(serializers.ModelSerializer):
             
         return product
     
+    @transaction.atomic
     def update(self, instance, validated_data):
         ingredients_data = validated_data.pop('ingredients', None)
         
@@ -130,6 +133,9 @@ class ProductWriteSerializer(serializers.ModelSerializer):
         drink_data = validated_data.pop('drink', None)
         dessert_data = validated_data.pop('dessert', None)
         snack_data = validated_data.pop('snack', None)
+        
+        old_type = instance.product_type
+        new_type = validated_data.get('product_type', old_type)
         
         # Update basic fields
         for attr, value in validated_data.items():
@@ -139,30 +145,39 @@ class ProductWriteSerializer(serializers.ModelSerializer):
         # Ingredients
         if ingredients_data is not None:
             instance.product_ingredients.all().delete()
-            for item in ingredients_data:
-                ProductIngredient.objects.create(product=instance, **item)
+            
+            ProductIngredient.objects.bulk_create([
+                ProductIngredient(
+                    product=instance,
+                    **item
+                )
+                for item in ingredients_data
+            ])
+
+        # Delete subtype only if type changes
+        if old_type != new_type:
+            Meal.objects.filter(product=instance).delete()
+            Drink.objects.filter(product=instance).delete()
+            Dessert.objects.filter(product=instance).delete()
+            Snack.objects.filter(product=instance).delete()
         
-        Meal.objects.filter(product=instance).delete()
-        Drink.objects.filter(product=instance).delete()
-        Dessert.objects.filter(product=instance).delete()
-        Snack.objects.filter(product=instance).delete()
-        
-        # Specific type
+        # Recreate subtype if provided
         if instance.product_type == 'meal' and meal_data:
-            Meal.objects.update_or_create(product=instance, defaults=meal_data)
+            Meal.objects.create(product=instance, **meal_data)
         
         elif instance.product_type == 'drink' and drink_data:
-            Drink.objects.update_or_create(product=instance, defaults=drink_data)
+            Drink.objects.create(product=instance, **drink_data)
             
         elif instance.product_type == 'dessert' and dessert_data:
-            Dessert.objects.update_or_create(product=instance, defaults=dessert_data)
+            Dessert.objects.create(product=instance, **dessert_data)
         
         elif instance.product_type == 'snack' and snack_data:
-            Snack.objects.update_or_create(product=instance, defaults=snack_data)
+            Snack.objects.create(product=instance, **snack_data)
         
         return instance
-    
-class ProductReadSerializer(serializers.ModelSerializer):
+
+# Returns all the information about a product
+class ProductDetailReadingSerializer(serializers.ModelSerializer):
     ingredients = ProductIngredientReadSerializer(
         source='product_ingredients',
         many=True
@@ -197,4 +212,37 @@ class ProductReadSerializer(serializers.ModelSerializer):
             if data[field] is None:
                 data.pop(field)
 
+        return data
+
+# Return only the product list for the MENU
+class ProductListReadingSerializer(serializers.ModelSerializer):
+    
+    meal = MealSerializer(read_only=True)
+    drink = DrinkSerializer(read_only=True)
+    dessert = DessertSerializer(read_only=True)
+    snack = SnackSerializer(read_only=True)
+    
+    class Meta:
+        model = Product
+        fields = [
+            'id',
+            'name',
+            'description',
+            'price',
+            'product_type',
+            'stock',
+            'meal',
+            'drink',
+            'dessert',
+            'snack',
+        ]
+    
+    def to_representation(self, instance):
+        
+        data = super().to_representation(instance)
+        
+        for field in ['meal', 'drink', 'dessert', 'snack']:
+            if data[field] is None:
+                data.pop(field)
+            
         return data
