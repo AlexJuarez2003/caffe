@@ -35,11 +35,25 @@ class ShoppingCartItem(models.Model):
         
         return (self.unit_price + extras_total) * self.quantity
 
+    @property
+    def extras_total(self):
+
+        return sum(
+            (
+                cart_ingredient.extra_price *
+                cart_ingredient.quantity
+                for cart_ingredient in self.cart_ingredients.filter(
+                    action='extra'
+                )
+            ),
+            Decimal('0.00')
+        )
+
 
 class CartItemIngredient(models.Model):
     
     cart_item = models.ForeignKey(ShoppingCartItem, on_delete=models.CASCADE, related_name='cart_ingredients')
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE, related_name='cart_item_ingredients')
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE, related_name='cart_items')
     
     ACTION_CHOICES = (
         ('normal', 'Normal'),
