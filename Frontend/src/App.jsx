@@ -11,6 +11,7 @@ import HistorialPedidos from "./pages/HistorialPedidos";
 import Carrito from "./pages/Carrito";
 import SignUp from "./pages/SignUp";
 import { NotificationContainer } from "./components/Notificacion";
+import AdminDashboard from './pages/AdminDashboard'; // ← Tu importación ya estaba lista aquí
 
 function App() {
   return (
@@ -33,7 +34,10 @@ function App() {
 
             <Route path="/carrito" element={<Carrito />} />
 
-            {/* Redirección por si escriben una ruta que no existe */}
+            {/* LA NUEVA RUTA DE ADMINISTRADOR VA AQUÍ: */}
+            <Route path="/admin" element={<AdminDashboard />} />
+
+            {/* Redirección por si escriben una ruta que no existe (Esta siempre va al final) */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
