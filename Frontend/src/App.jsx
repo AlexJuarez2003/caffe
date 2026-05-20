@@ -31,6 +31,8 @@ function App() {
 
             <Route path="/historial" element={<HistorialPedidos />} />
 
+            <Route path="/carrito" element={<Carrito />} />
+
             {/* Redirección por si escriben una ruta que no existe */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

@@ -4,6 +4,7 @@ import {
   Plus,
   Settings2,
   ShoppingBag,
+  ShoppingCart,
   CupSoda,
   Cake,
   Cookie,
@@ -18,12 +19,16 @@ import { notify } from "../components/Notificacion";
 const FoodMenu = () => {
   const navigate = useNavigate();
   const [categoria, setCategoria] = useState("all");
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [productos, setProductos] = useState([]);
+
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
 
   // --- ESTADOS PARA EL MODAL Y CARRITO ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+
   const [carrito, setCarrito] = useState([]);
   const [notificacion, setNotificacion] = useState({
     visible: false,
@@ -49,16 +54,7 @@ const FoodMenu = () => {
       });
   }, []);
 
-  // Función para agregar directo (Botón naranja +)
-  const agregarAlCarrito = (producto) => {
-    // Generamos un idUnico para poder eliminarlo después sin borrar duplicados
-    const nuevoItem = { ...producto, idUnico: Date.now(), cantidad: 1 };
-    setCarrito((prev) => [...prev, nuevoItem]);
-
-    setNotificacion({ visible: true, nombre: producto.nombre });
-    setTimeout(() => setNotificacion({ visible: false, nombre: "" }), 2000);
-  };
-
+  // Enviar producto a personalizar
   const openCustomModal = (producto) => {
     setSelectedProduct(producto);
     setIsModalOpen(true);
@@ -82,6 +78,16 @@ const FoodMenu = () => {
     { value: "dessert", label: "Postres" },
     { value: "snack", label: "Snacks" },
   ];
+
+  // Función para agregar directo (Botón naranja +)
+  const agregarAlCarrito = (producto) => {
+    // Generamos un idUnico para poder eliminarlo después sin borrar duplicados
+    const nuevoItem = { ...producto, idUnico: Date.now(), cantidad: 1 };
+    setCarrito((prev) => [...prev, nuevoItem]);
+
+    setNotificacion({ visible: true, nombre: producto.nombre });
+    setTimeout(() => setNotificacion({ visible: false, nombre: "" }), 2000);
+  };
 
   return (
     <div className="p-8 bg-[#f3f4ed] min-h-screen pb-24">
@@ -115,15 +121,23 @@ const FoodMenu = () => {
             className="mb-8 flex items-center gap-2 text-[#2d3a1a] font-black text-xs uppercase tracking-widest hover:text-orange-500 transition-colors group"
           >
             <User className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-            Ir a mi perfil
+            Mi perfil
           </button>
 
           <button
             onClick={() => navigate("/historial")}
             className="mb-8 flex items-center gap-2 text-[#2d3a1a] font-black text-xs uppercase tracking-widest hover:text-orange-500 transition-colors group"
           >
-            <Clock className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <ShoppingBag className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             Mis pedidos
+          </button>
+
+          <button
+            onClick={() => navigate("/carrito")}
+            className="mb-8 flex items-center gap-2 text-[#2d3a1a] font-black text-xs uppercase tracking-widest hover:text-orange-500 transition-colors group"
+          >
+            <ShoppingCart className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            Carrito
           </button>
         </div>
 
@@ -226,13 +240,13 @@ const FoodMenu = () => {
                           onClick={() => openCustomModal(producto)}
                           className="p-4 bg-gray-50 text-[#2d3a1a] rounded-3x1 hover:bg-gray-100 transition-colors border border-gray-100"
                         >
-                          <Settings2 className="w-6 h-6" />
+                          <ShoppingCart className="w-6 h-6" />
                         </button>
                         <button
                           onClick={() => agregarAlCarrito(producto)}
                           className="p-4 bg-orange-500 text-white rounded-3x1 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/30 active:scale-90"
                         >
-                          <Plus className="w-6 h-6" />
+                          <ShoppingBag className="w-6 h-6" />
                         </button>
                       </div>
                     </div>

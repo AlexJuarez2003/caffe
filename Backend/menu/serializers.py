@@ -17,6 +17,7 @@ class IngredientSerializer(serializers.ModelSerializer):
     
 class ProductIngredientReadSerializer(serializers.ModelSerializer):
     ingredient_name = serializers.CharField(source='ingredient.name')
+    extra_price = serializers.DecimalField(max_digits=6, decimal_places=2, source='ingredient.extra_price')
 
     class Meta:
         model = ProductIngredient
@@ -27,7 +28,9 @@ class ProductIngredientReadSerializer(serializers.ModelSerializer):
             'quantity',
             'unit',
             'is_optional',
-            'max_quantity'
+            'max_quantity',
+            'min_quantity',
+            'extra_price'
         ]
     
     def to_representation(self, instance):
@@ -35,13 +38,16 @@ class ProductIngredientReadSerializer(serializers.ModelSerializer):
 
         if data['max_quantity'] is None:
             data.pop('max_quantity')
+        
+        if data['min_quantity'] is None:
+            data.pop('min_quantity')
 
         return data
 
 class ProductIngredientWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductIngredient
-        fields = ['ingredient', 'quantity', 'unit', 'is_optional', 'max_quantity']
+        fields = ['ingredient', 'quantity', 'unit', 'is_optional', 'max_quantity', 'min_quantity']
        
 class MealSerializer(serializers.ModelSerializer):
     class Meta:

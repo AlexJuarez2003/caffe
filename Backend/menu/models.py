@@ -56,6 +56,7 @@ class ProductIngredient(models.Model):
     is_optional = models.BooleanField(default=False)
     quantity = models.FloatField()
     max_quantity = models.FloatField(null=True, blank=True)
+    min_quantity = models.FloatField(null=True, blank=True)
     
     unit = models.CharField(max_length=20)
     

@@ -20,6 +20,11 @@ class CartItemIngredientReadingSerializer(serializers.ModelSerializer):
 
 class ShoppingCartItemReadingSerializer(serializers.ModelSerializer):
     
+    product_name = serializers.CharField(
+        source='product.name',
+        read_only=True
+    )
+    
     ingredients = CartItemIngredientReadingSerializer(
         many=True,
         read_only=True,
@@ -37,6 +42,7 @@ class ShoppingCartItemReadingSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'product',
+            'product_name',
             'quantity',
             'unit_price',
             'extras_total',
@@ -129,7 +135,7 @@ class ShoppingCartItemWritingSerializer(serializers.ModelSerializer):
 
         ingredients_data = validated_data.pop(
             'ingredients',
-            []
+            None
         )
 
         instance.quantity = validated_data.get(
@@ -144,24 +150,27 @@ class ShoppingCartItemWritingSerializer(serializers.ModelSerializer):
 
         instance.save()
 
-        # Remove previous ingredients
-        instance.cart_ingredients.all().delete()
+        # Only update ingredients if field was sent
+        if ingredients_data is not None:
 
-        # Recreate ingredients
-        for ingredient_data in ingredients_data:
+            # Remove previous ingredients
+            instance.cart_ingredients.all().delete()
 
-            ingredient = ingredient_data['ingredient']
+            # Recreate ingredients
+            for ingredient_data in ingredients_data:
 
-            extra_price = (
-                ingredient.extra_price
-                if ingredient_data['action'] == 'extra'
-                else 0
-            )
+                ingredient = ingredient_data['ingredient']
 
-            CartItemIngredient.objects.create(
-                cart_item=instance,
-                extra_price=extra_price,
-                **ingredient_data
-            )
+                extra_price = (
+                    ingredient.extra_price
+                    if ingredient_data['action'] == 'extra'
+                    else 0
+                )
+
+                CartItemIngredient.objects.create(
+                    cart_item=instance,
+                    extra_price=extra_price,
+                    **ingredient_data
+                )
 
         return instance
