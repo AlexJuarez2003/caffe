@@ -108,9 +108,49 @@ export function notify(options) {
 function NotificationItem({ notification, onRemove }) {
   const [visible, setVisible] = useState(false);
   const [progress, setProgress] = useState(100);
-  const s = STYLES[notification.type] || STYLES.info;
   const duration = notification.duration ?? 4000;
   const autoClose = notification.autoClose !== false;
+
+  const TYPES = {
+    success: {
+      icon: "ti-circle-check",
+      accent: "#3B6D11",
+      bg: "#EAF3DE",
+      border: "#C0DD97",
+      title: "#173404",
+      text: "#3B6D11",
+      progress: "#639922",
+    },
+    error: {
+      icon: "ti-circle-x",
+      accent: "#A32D2D",
+      bg: "#FCEBEB",
+      border: "#F7C1C1",
+      title: "#501313",
+      text: "#A32D2D",
+      progress: "#E24B4A",
+    },
+    warning: {
+      icon: "ti-alert-triangle",
+      accent: "#854F0B",
+      bg: "#FAEEDA",
+      border: "#FAC775",
+      title: "#412402",
+      text: "#854F0B",
+      progress: "#BA7517",
+    },
+    info: {
+      icon: "ti-info-circle",
+      accent: "#185FA5",
+      bg: "#E6F1FB",
+      border: "#B5D4F4",
+      title: "#042C53",
+      text: "#185FA5",
+      progress: "#378ADD",
+    },
+  };
+
+  const s = TYPES[notification.type] || TYPES.info;
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true));
@@ -144,69 +184,68 @@ function NotificationItem({ notification, onRemove }) {
         alignItems: "flex-start",
         gap: "12px",
         background: s.bg,
-        border: `1px solid ${s.border}`,
-        borderRadius: "12px",
-        padding: "14px 16px",
-        boxShadow: "0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)",
-        minWidth: "320px",
-        maxWidth: "420px",
+        border: `1.5px solid ${s.border}`,
+        borderRadius: "1.5rem",
+        padding: "16px 18px",
+        boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
+        minWidth: "300px",
+        maxWidth: "400px",
         overflow: "hidden",
         opacity: visible ? 1 : 0,
-        transform: visible
-          ? "translateX(0) scale(1)"
-          : "translateX(40px) scale(0.96)",
-        transition:
-          "opacity 0.35s cubic-bezier(.4,0,.2,1), transform 0.35s cubic-bezier(.4,0,.2,1)",
-        willChange: "transform, opacity",
+        transform: visible ? "translateX(0) scale(1)" : "translateX(40px) scale(0.96)",
+        transition: "opacity 0.35s cubic-bezier(.4,0,.2,1), transform 0.35s cubic-bezier(.4,0,.2,1)",
       }}
     >
-      <span style={{ color: s.icon, flexShrink: 0, marginTop: "1px" }}>
-        {ICONS[notification.type] || ICONS.info}
-      </span>
+      <i
+        className={`ti ${s.icon}`}
+        style={{ color: s.accent, fontSize: "20px", marginTop: "1px", flexShrink: 0 }}
+        aria-hidden="true"
+      />
 
       <div style={{ flex: 1, minWidth: 0 }}>
         {notification.title && (
-          <p
-            style={{
-              margin: "0 0 2px",
-              fontSize: "14px",
-              fontWeight: 600,
-              color: s.title,
-              lineHeight: 1.4,
-            }}
-          >
+          <p style={{
+            margin: "0 0 2px",
+            fontSize: "13px",
+            fontWeight: 900,
+            color: s.title,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            lineHeight: 1.4,
+          }}>
             {notification.title}
           </p>
         )}
         {notification.message && (
-          <p
-            style={{
-              margin: 0,
-              fontSize: "13px",
-              color: s.text,
-              lineHeight: 1.5,
-            }}
-          >
+          <p style={{
+            margin: 0,
+            fontSize: "13px",
+            fontWeight: 600,
+            color: s.text,
+            lineHeight: 1.5,
+          }}>
             {notification.message}
           </p>
         )}
         {notification.action && (
           <button
-            onClick={() => {
-              notification.action.onClick();
-              handleClose();
-            }}
+            onClick={() => { notification.action.onClick(); handleClose(); }}
             style={{
-              marginTop: "8px",
-              background: "transparent",
-              border: `1px solid ${s.border}`,
-              borderRadius: "6px",
-              color: s.icon,
-              fontSize: "12px",
-              fontWeight: 600,
-              padding: "4px 10px",
+              marginTop: "10px",
+              background: s.accent,
+              border: "none",
+              borderRadius: "0.75rem",
+              color: "#fff",
+              fontSize: "11px",
+              fontWeight: 900,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              padding: "6px 14px",
               cursor: "pointer",
+              transition: "opacity 0.2s",
             }}
+            onMouseEnter={(e) => e.target.style.opacity = "0.85"}
+            onMouseLeave={(e) => e.target.style.opacity = "1"}
           >
             {notification.action.label}
           </button>
@@ -220,31 +259,32 @@ function NotificationItem({ notification, onRemove }) {
           background: "transparent",
           border: "none",
           cursor: "pointer",
-          color: s.icon,
-          opacity: 0.6,
+          color: s.accent,
+          opacity: 0.5,
           padding: "2px",
           flexShrink: 0,
-          lineHeight: 1,
           fontSize: "18px",
+          lineHeight: 1,
+          transition: "opacity 0.2s",
         }}
+        onMouseEnter={(e) => e.target.style.opacity = "1"}
+        onMouseLeave={(e) => e.target.style.opacity = "0.5"}
       >
         ×
       </button>
 
       {autoClose && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            height: "3px",
-            width: `${progress}%`,
-            background: s.progress,
-            borderRadius: "0 0 0 12px",
-            transition: "width 16ms linear",
-            opacity: 0.7,
-          }}
-        />
+        <div style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          height: "3px",
+          width: `${progress}%`,
+          background: s.progress,
+          borderRadius: "0 0 0 1.5rem",
+          transition: "width 16ms linear",
+          opacity: 0.6,
+        }} />
       )}
     </div>
   );
