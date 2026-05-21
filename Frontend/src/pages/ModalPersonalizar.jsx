@@ -3,7 +3,8 @@ import { X, Check, Leaf, Coffee, Pizza, Plus } from "lucide-react";
 import { notify } from "../components/Notificacion";
 
 const CustomModal = ({ isOpen, onClose, producto, onAgregar }) => {
-  const img = "https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=400";
+  const img =
+    "https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=400";
 
   const [ingredientes, setIngredientes] = useState([]);
 
@@ -11,10 +12,10 @@ const CustomModal = ({ isOpen, onClose, producto, onAgregar }) => {
     product: producto?.id,
     quantity: 1,
     notes: "",
-    ingredients: []
+    ingredients: [],
   });
 
-  const handleProduct = (e) => {
+  const handleCartItem = (e) => {
     const { name, value } = e.target;
 
     setFormData({
@@ -23,22 +24,33 @@ const CustomModal = ({ isOpen, onClose, producto, onAgregar }) => {
     });
   };
 
-  const handleIngredients = (ingredientId, action, quantity) => {
+  const handleIngredients = (ing, nuevaCantidad) => {
+    if (nuevaCantidad === ing.quantity) {
+      setFormData((prev) => ({
+        ...prev,
+        ingredients: prev.ingredients.filter(
+          (item) => item.ingredient !== ing.ingredient,
+        ),
+      }));
+      return;
+    }
 
-  setFormData((prev) => ({
-    ...prev,
-    ingredients: [
-      ...prev.ingredients.filter(
-        (item) => item.ingredient !== ingredientId
-      ),
-      {
-        ingredient: ingredientId,
-        action: action,
-        quantity: quantity,
-      }
-    ]
-  }));
-};
+    const action = nuevaCantidad > ing.quantity ? "extra" : "remover";
+
+    setFormData((prev) => ({
+      ...prev,
+      ingredients: [
+        ...prev.ingredients.filter(
+          (item) => item.ingredient !== ing.ingredient,
+        ),
+        {
+          ingredient: ing.ingredient,
+          action,
+          quantity: nuevaCantidad,
+        },
+      ],
+    }));
+  };
 
   useEffect(() => {
     if (!producto?.id) return;
@@ -46,8 +58,12 @@ const CustomModal = ({ isOpen, onClose, producto, onAgregar }) => {
     fetch(`http://localhost:8000/menu/products/${producto.id}/`)
       .then((response) => response.json())
       .then((data) => {
-        producto = data;
-        setIngredientes(producto.ingredients);
+        setIngredientes(
+          data.ingredients.map((ing) => ({
+            ...ing,
+            selected_quantity: ing.quantity,
+          })),
+        );
       })
       .catch((error) => {
         notify({
@@ -61,17 +77,13 @@ const CustomModal = ({ isOpen, onClose, producto, onAgregar }) => {
 
   if (!isOpen || !producto) return null;
 
-  // --- ESTA FUNCIÓN HACE QUE EL BOTÓN FUNCIONE ---
   const handleAgregarAlCarrito = () => {
-    const itemPersonalizado = {
-      ...producto,
-      precio: precioFinal, // Enviamos el precio ya sumado
-      extras: extrasSeleccionados.map((e) => e.nombre),
-      notas: notasAdicionales,
-      cantidad: 1,
-    };
-
-    onAgregar(itemPersonalizado); // Enviamos al FoodMenu
+    onAgregar({
+      product: producto.id,
+      quantity: formData.quantity,
+      notes: formData.notes,
+      ingredients: formData.ingredients,
+    });
   };
 
   return (
@@ -82,10 +94,9 @@ const CustomModal = ({ isOpen, onClose, producto, onAgregar }) => {
       />
 
       <div className="relative bg-white w-full max-w-lg rounded-[3rem] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
-        {/* Header */}
         <div className="h-40 bg-[#2d3a1a] relative">
           <img
-            src={img}
+            src={producto.image_url ? producto.image_url : img}
             className="w-full h-full object-cover opacity-50"
             alt=""
           />
@@ -97,67 +108,104 @@ const CustomModal = ({ isOpen, onClose, producto, onAgregar }) => {
           </button>
           <div className="absolute bottom-6 left-8">
             <h2 className="text-white text-3xl font-black tracking-tighter italic">
-              { producto.name }
+              {producto.name}
             </h2>
-            <p className="text-orange-400 font-bold text-xs uppercase tracking-widest">
-              Personalizar
-            </p>
           </div>
         </div>
 
         <div className="p-8 max-h-[70vh] overflow-y-auto">
           <div className="space-y-8">
-            {/* Sección: Quitar */}
             <section>
               <h4 className="text-[#2d3a1a] font-black text-sm uppercase tracking-widest mb-4 flex items-center gap-2">
-                "Qué agregamos"
+                <Pizza className="w-4 h-4 text-green-600" />
+                Personalice ingredientes
               </h4>
-              <div className="grid grid-cols-2 gap-3">
-                {ingredientes.map((ing) => (
+              <div className="flex flex-col gap-3">
+                {ingredientes.map((ingrediente) => (
                   <label
-                    key={ing.ingredient}
+                    key={ingrediente.ingredient}
                     className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-all border border-transparent has-checked:border-orange-500 has-checked:bg-orange-50"
                   >
-                    
                     <span className="text-sm font-bold text-[#2d3a1a]">
-                      {ing.ingredient_name}
+                      {ingrediente.ingredient_name}
                     </span>
+                    <input
+                      type="number"
+                      value={ingrediente.selected_quantity}
+                      min={ingrediente.min_quantity}
+                      max={ingrediente.max_quantity}
+                      className="w-16 text-center bg-gray-50 border border-gray-100 rounded-xl px-2 py-1 text-sm font-bold text-[#2d3a1a] focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        setIngredientes((prev) =>
+                          prev.map((item) =>
+                            item.ingredient === ingrediente.ingredient
+                              ? { ...item, selected_quantity: raw }
+                              : item,
+                          ),
+                        );
+                      }}
+                      onBlur={(e) => {
+                        const parsed =
+                          e.target.value === ""
+                            ? ingrediente.quantity
+                            : Number(e.target.value);
+                        const nuevaCantidad = Math.min(
+                          Math.max(parsed, ingrediente.min_quantity),
+                          ingrediente.max_quantity,
+                        );
+                        setIngredientes((prev) =>
+                          prev.map((item) =>
+                            item.ingredient === ingrediente.ingredient
+                              ? { ...item, selected_quantity: nuevaCantidad }
+                              : item,
+                          ),
+                        );
+                        handleIngredients(ingrediente, nuevaCantidad);
+                      }}
+                    />
+                    <span>{" " + ingrediente.unit}</span>
                   </label>
                 ))}
               </div>
             </section>
 
-            {/* SECCIÓN DINÁMICA DE EXTRAS */}
-            {ingredientes.length > 0 && (
-              <section>
-                <h4 className="text-[#2d3a1a] font-black text-sm uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <Plus className="w-4 h-4 text-green-600" /> ¿Qué le agregamos?
-                </h4>
-                <div className="grid grid-cols-1 gap-2">
-                  
-                  
-                </div>
-              </section>
-            )}
+            <section>
+              <h4 className="text-[#2d3a1a] font-black text-sm uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Plus className="w-4 h-4 text-green-600" /> Seleccione cantidad
+              </h4>
+              <div className="grid grid-cols-1 gap-2">
+                <input
+                  name="quantity"
+                  type="number"
+                  value={formData.quantity}
+                  min={1}
+                  max={10}
+                  onChange={handleCartItem}
+                />
+              </div>
+            </section>
 
-            {/* Notas dinámicas */}
             <section>
               <h4 className="text-[#2d3a1a] font-black text-sm uppercase tracking-widest mb-4">
-                Notas adicionales
+                Ingrese notas opcionales
               </h4>
               <textarea
-                placeholder="placeholder"
+                name="notes"
+                value={formData.notes}
+                onChange={handleCartItem}
+                placeholder="Notas para el item"
                 className="w-full p-5 bg-gray-50 rounded-4x1 border border-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-sm font-medium h-24 transition-all"
               />
             </section>
           </div>
 
           <div className="mt-10">
-            {/* BOTÓN CONECTADO A LA FUNCIÓN */}
             <button
+              onClick={handleAgregarAlCarrito}
               className="w-full bg-[#2d3a1a] hover:bg-[#1a2310] text-white py-5 rounded-4x1 font-black text-lg shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95"
             >
-              Agregar al carrito por $15
+              Agregar al carrito
             </button>
           </div>
         </div>

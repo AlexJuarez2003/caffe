@@ -11,7 +11,7 @@ import HistorialPedidos from "./pages/HistorialPedidos";
 import Carrito from "./pages/Carrito";
 import SignUp from "./pages/SignUp";
 import { NotificationContainer } from "./components/Notificacion";
-import AdminDashboard from './pages/AdminDashboard'; // ← Tu importación ya estaba lista aquí
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   return (

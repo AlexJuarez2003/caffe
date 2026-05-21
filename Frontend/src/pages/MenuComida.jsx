@@ -23,11 +23,9 @@ const FoodMenu = () => {
 
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-
   // --- ESTADOS PARA EL MODAL Y CARRITO ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-
 
   const [carrito, setCarrito] = useState([]);
   const [notificacion, setNotificacion] = useState({
@@ -60,15 +58,44 @@ const FoodMenu = () => {
     setIsModalOpen(true);
   };
 
-  const onAgregarDesdeModal = (productoPersonalizado) => {
-    // También asignamos idUnico aquí para que el botón de eliminar funcione
-    setCarrito((prev) => [
-      ...prev,
-      { ...productoPersonalizado, idUnico: Date.now(), cantidad: 1 },
-    ]);
-    setIsModalOpen(false);
-    setNotificacion({ visible: true, nombre: productoPersonalizado.nombre });
-    setTimeout(() => setNotificacion({ visible: false, nombre: "" }), 2000);
+  const onAgregarDesdeModal = async (productoPersonalizado) => {
+    try {
+      const response = await fetchWithAuth(
+        "http://localhost:8000/shopping-cart/my-cart/items/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(productoPersonalizado),
+        },
+      );
+
+      if (!response.ok) {
+        notify({
+          type: "error",
+          title: "Error",
+          message: "No se pudo agregar el producto al carrito",
+          duration: 6000,
+        });
+        return;
+      }
+
+      notify({
+        type: "success",
+        title: "Éxito",
+        message: "Producto agregado al carrito",
+        duration: 3000,
+      });
+
+      setIsModalOpen(false);
+    } catch (error) {
+      notify({
+        type: "error",
+        title: "Error",
+        message: "Error al conectarse al servidor",
+        duration: 6000,
+      });
+    }
   };
 
   const categorias = [
@@ -92,7 +119,6 @@ const FoodMenu = () => {
   return (
     <div className="p-8 bg-[#f3f4ed] min-h-screen pb-24">
       <div className="max-w-6xl mx-auto">
-        
         {/* Notificación Flotante de éxito */}
         {notificacion.visible && (
           <div className="fixed top-10 left-1/2 -translate-x-1/2 z-200 bg-[#2d3a1a] text-white px-8 py-4 rounded-full font-black shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
@@ -185,15 +211,15 @@ const FoodMenu = () => {
                     }
                   : producto.dessert?.size
                     ? {
-                      icon: Cake,
-                      value: `Tamaño ${producto.dessert.size}`,
-                    }
+                        icon: Cake,
+                        value: `Tamaño ${producto.dessert.size}`,
+                      }
                     : producto.snack?.size
-                    ? {
-                      icon: Cookie,
-                      value: `Tamaño ${producto.snack.size}`,
-                    }
-                    : null;
+                      ? {
+                          icon: Cookie,
+                          value: `Tamaño ${producto.snack.size}`,
+                        }
+                      : null;
 
               return (
                 <div

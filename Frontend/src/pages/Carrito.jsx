@@ -35,6 +35,98 @@ const Carrito = () => {
       });
   }, []);
 
+  const handleUpdateQuantity = async (item, delta) => {
+    const newQuantity = item.quantity + delta;
+
+    if (newQuantity < 1) return;
+
+    // Actualización optimista solo de la cantidad
+    setItems((prev) =>
+      prev.map((i) => (i.id === item.id ? { ...i, quantity: newQuantity } : i)),
+    );
+
+    try {
+      const response = await fetchWithAuth(
+        `http://localhost:8000/shopping-cart/my-cart/items/${item.id}/`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ quantity: newQuantity }),
+        },
+      );
+
+      if (response.ok) {
+        // Refresca subtotales y total desde el backend
+        const carrito = await fetchWithAuth(
+          "http://localhost:8000/shopping-cart/my-cart/",
+        );
+        const data = await carrito.json();
+        setItems(data.items);
+        setTotal(data.total);
+      } else {
+        setItems((prev) =>
+          prev.map((i) =>
+            i.id === item.id ? { ...i, quantity: item.quantity } : i,
+          ),
+        );
+        notify({
+          type: "error",
+          title: "Error al actualizar cantidad",
+          duration: 3000,
+        });
+      }
+    } catch {
+      setItems((prev) =>
+        prev.map((i) =>
+          i.id === item.id ? { ...i, quantity: item.quantity } : i,
+        ),
+      );
+      notify({
+        type: "error",
+        title: "Error al conectarse al servidor",
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleDeleteItem = (item) => {
+    notify({
+      type: "warning",
+      title: "¿Eliminar producto?",
+      message: "Esta acción no se puede deshacer.",
+      duration: 6000,
+      action: {
+        label: "Eliminar",
+        onClick: () => confirmarDeleteItem(item),
+      },
+    });
+  };
+
+  const confirmarDeleteItem = async (item) => {
+    fetchWithAuth(
+      `http://localhost:8000/shopping-cart/my-cart/items/${item}/delete/`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      },
+    )
+      .then((response) => {
+        if (response.ok) {
+          setItems((prev) => prev.filter((i) => i.id !== item));
+        }
+      })
+      .catch((error) => {
+        notify({
+          type: "error",
+          title: "Error al comunicarse con el servidor",
+          message: error,
+          duration: 4000,
+        });
+      });
+  };
+
   const alternarExpansion = (id) => {
     setIdExpandido(idExpandido === id ? null : id);
   };
@@ -56,9 +148,12 @@ const Carrito = () => {
 
         <div className="space-y-6">
           {items.map((item) => (
-            <div key={item.id} className="bg-white rounded-[2.5rem] p-6 shadow-xl border border-gray-100 overflow-hidden transition-all">
-              <div 
-                className="p-8 flex justify-between items-center cursor-pointer hover:bg-gray-50/50 transition-colors" 
+            <div
+              key={item.id}
+              className="bg-white rounded-[2.5rem] p-6 shadow-xl border border-gray-100 overflow-hidden transition-all"
+            >
+              <div
+                className="p-8 flex justify-between items-center cursor-pointer hover:bg-gray-50/50 transition-colors"
                 onClick={() => alternarExpansion(item.id)}
               >
                 <div className="flex-1">
@@ -74,59 +169,88 @@ const Carrito = () => {
                 </div>
 
                 <div className="flex items-center gap-4 bg-gray-50 p-2 rounded-2xl">
-                  <button className="p-2 hover:bg-white rounded-xl transition-colors text-gray-400 hover:text-orange-500">
+                  <button
+                    onClick={() => handleUpdateQuantity(item, -1)}
+                    className="p-2 hover:bg-white rounded-xl transition-colors text-gray-400 hover:text-orange-500"
+                  >
                     <Minus className="w-4 h-4" />
                   </button>
                   <span className="font-black text-[#2d3a1a]">
                     {item.quantity}
                   </span>
-                  <button className="p-2 hover:bg-white rounded-xl transition-colors text-gray-400 hover:text-orange-500">
+                  <button
+                    onClick={() => handleUpdateQuantity(item, +1)}
+                    className="p-2 hover:bg-white rounded-xl transition-colors text-gray-400 hover:text-orange-500"
+                  >
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
 
-                <button className="ml-4 p-4 text-gray-300 hover:text-red-500 transition-colors">
+                <button
+                  onClick={() => handleDeleteItem(item.id)}
+                  className="ml-4 p-4 text-gray-300 hover:text-red-500 transition-colors"
+                >
                   <Trash2 className="w-5 h-5" />
                 </button>
               </div>
 
-              {idExpandido === item.id && (
-                !item.ingredients.length == 0
-                ?
-                <div className="px-8 pb-8 animate-in slide-in-from-top-4 duration-300">
-                  <div className="h-px bg-gray-100 w-full mb-6"></div>
-                  <div className="space-y-6">
-                    
-                    <div>
-                      <h4 className="text-[10px] font-black text-orange-500 uppercase tracking-[0.2em] mb-3 italic">Ingredientes personalizados</h4>
-                      <div className="space-y-3">
-                        {item.ingredients.map((ingredient, id) => (
-                          <div key={id} className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                            <div className="flex justify-between items-center">
-                              <span className="font-black text-[#2d3a1a] text-sm">{ingredient.ingredient.name + " " + ingredient.action + " x" + item.quantity}</span>
-                              <span className="font-bold text-[#2d3a1a] text-sm">+ ${ingredient.quantity * ingredient.extra_price * item.quantity}</span>
+              {idExpandido === item.id &&
+                (!item.ingredients.length == 0 ? (
+                  <div className="px-8 pb-8 animate-in slide-in-from-top-4 duration-300">
+                    <div className="h-px bg-gray-100 w-full mb-6"></div>
+                    <div className="space-y-6">
+                      <div>
+                        <h4 className="text-[10px] font-black text-orange-500 uppercase tracking-[0.2em] mb-3 italic">
+                          Ingredientes personalizados
+                        </h4>
+                        <div className="space-y-3">
+                          {item.ingredients.map((ingredient, id) => (
+                            <div
+                              key={id}
+                              className="bg-gray-50 rounded-2xl p-4 border border-gray-100"
+                            >
+                              <div className="flex justify-between items-center">
+                                <span className="font-black text-[#2d3a1a] text-sm">
+                                  {ingredient.ingredient.name +
+                                    " " +
+                                    ingredient.action +
+                                    " x" +
+                                    item.quantity}
+                                </span>
+                                <span className="font-bold text-[#2d3a1a] text-sm">
+                                  + $
+                                  {ingredient.quantity *
+                                    ingredient.extra_price *
+                                    item.quantity}
+                                </span>
+                              </div>
+                              <p className="text-[10px] lowercase text-orange-600 font-black mt-1 italic">
+                                {ingredient.action === "extra"
+                                  ? "+ " +
+                                    ingredient.ingredient.base_quantity *
+                                      ingredient.quantity +
+                                    " " +
+                                    ingredient.ingredient.unit +
+                                    " de " +
+                                    ingredient.ingredient.description +
+                                    " c/u"
+                                  : "- " +
+                                    ingredient.quantity +
+                                    " " +
+                                    ingredient.ingredient.unit +
+                                    " de " +
+                                    ingredient.ingredient.description +
+                                    " c/u"}
+                              </p>
                             </div>
-                            <p className="text-[10px] lowercase text-orange-600 font-black mt-1 italic">
-                              {
-                                ingredient.action === "extra"
-                                ?
-                                 "+ " + ingredient.ingredient.base_quantity * ingredient.quantity + " " + ingredient.ingredient.unit + " de " + ingredient.ingredient.description + " c/u"
-                                :
-                                 "- " + ingredient.quantity + " " + ingredient.ingredient.unit + " de " + ingredient.ingredient.description + " c/u"
-                              }
-                            </p>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     </div>
-
                   </div>
-                </div>
-                :
-                <div></div>
-              )}
-
-              
+                ) : (
+                  <div></div>
+                ))}
             </div>
           ))}
         </div>

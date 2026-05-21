@@ -91,7 +91,7 @@ class ChefSignUpSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Chef
-        fields = ['shift', 'role']
+        fields = ['shift', 'user']
     
     def create(self, validated_data):
         
