@@ -4,6 +4,8 @@ import { notify } from "../components/Notificacion";
 import StaffForm from "../pages/StaffForm";
 import Ingredientes from "../pages/menu/Ingredientes";
 import Productos from "../components/menu/Productos";
+import { cerrarSesion } from "../helper/LogOut";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const [vistaActual, setVistaActual] = useState("inventario");
@@ -11,6 +13,7 @@ const AdminDashboard = () => {
   const [repartidores, setRepartidores] = useState([]);
   const [tabPersonal, setTabPersonal] = useState("cocineros");
   const [modalStaffAbierto, setModalStaffAbierto] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (vistaActual !== "personal") return;
@@ -52,6 +55,11 @@ const AdminDashboard = () => {
                 {label}
               </button>
             ))}
+            <button 
+              onClick={() => cerrarSesion(navigate)}
+              className="w-full text-left py-3 px-4 rounded-2xl font-bold text-sm transition text-gray-300 hover:bg-[#3D4F31]">
+                Cerrar Sesión
+            </button>
           </nav>
         </div>
         <div className="text-[10px] text-gray-400 font-bold text-center uppercase tracking-wide">

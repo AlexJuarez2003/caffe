@@ -19,6 +19,7 @@ import {
 import { fetchWithAuth } from "../helper/FetchWithAuth";
 import ModalEditarPerfil from "./ModalEditarPerfil";
 import { notify } from "../components/Notificacion";
+import { cerrarSesion } from "../helper/LogOut";
 
 function PerfilUsuario() {
   const navigate = useNavigate();
@@ -38,35 +39,6 @@ function PerfilUsuario() {
   useEffect(() => {
     getUser();
   }, []);
-
-  // Eliminar datos de sesión
-  const cerrarSesion = async () => {
-    const response = await fetchWithAuth(
-      "http://localhost:8000/accounts/logout/",
-      {
-        method: "POST",
-        credentials: "include",
-      },
-    );
-
-    if (response.ok) {
-      notify({
-        type: "success",
-        title: "Sesión terminada",
-        message: "Se ha cerrado su sesión adecuadamente.",
-        duration: 4000,
-      });
-      localStorage.removeItem("user");
-      navigate("/login");
-    } else {
-      notify({
-        type: "error",
-        title: "Error de conexión",
-        message: "No se ha podido comunicar con el servidor.",
-        duration: 4000,
-      });
-    }
-  };
 
   const iniciarSesion = async () => {
     navigate("/login");
@@ -129,7 +101,7 @@ function PerfilUsuario() {
           </div>
 
           <button
-            onClick={cerrarSesion}
+            onClick={() => cerrarSesion(navigate)}
             className="mt-8 flex items-center gap-2 text-white/50 hover:text-white font-bold text-[10px] uppercase tracking-widest transition-all"
           >
             <LogOut className="w-4 h-4" /> Cerrar Sesión

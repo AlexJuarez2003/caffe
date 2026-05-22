@@ -282,7 +282,6 @@ const FoodMenu = () => {
             })}
         </div>
 
-        {/* BOTÓN FLOTANTE: Muestra cantidad real en el carrito */}
         <button
           onClick={() => setIsCartOpen(true)}
           className="fixed bottom-10 right-10 z-50 bg-[#2d3a1a] text-white p-6 rounded-[2.5rem] shadow-2xl shadow-[#2d3a1a]/40 hover:scale-110 transition-all active:scale-95 flex items-center gap-4 group"
