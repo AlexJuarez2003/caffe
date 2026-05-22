@@ -3,6 +3,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
 from .models import User, Chef, Customer, Delivery
 from rest_framework import serializers
+from logistics.models import DeliveryArea
 
 # REGISTRATION CLASSES
 
@@ -167,9 +168,15 @@ class LoginSerializer(TokenObtainPairSerializer):
             delivery = Delivery.objects.get(user=user)
             
             profile_data = {
-                "delivery_area": delivery.delivery_area,
+                "delivery_area": {
+                    "id": delivery.delivery_area.id,
+                    "name": delivery.delivery_area.name,
+                } if delivery.delivery_area else None,
                 "is_available": delivery.is_available
             }
+        
+        elif user.role == "Administrador":
+            profile_data = None
         
         # Add user data to response
         data["user"] = {
@@ -289,6 +296,21 @@ class ChefUpdateSerializer(UserNestedUpdateMixin, serializers.ModelSerializer):
         self.update_user(instance, user_data)
             
         return instance
+    
+    def to_representation(self, instance):
+        return {
+            "user": {
+                "creation_date": instance.user.creation_date,
+                "email": instance.user.email,
+                "first_name": instance.user.first_name,
+                "last_name": instance.user.last_name,
+                "phone_number": instance.user.phone_number,
+                "role": instance.user.role,
+                "profile": {
+                    "shift": instance.shift
+                }
+            }
+        }
 
 
 class DeliveryUpdateSerializer(UserNestedUpdateMixin, serializers.ModelSerializer):
@@ -308,3 +330,53 @@ class DeliveryUpdateSerializer(UserNestedUpdateMixin, serializers.ModelSerialize
         self.update_user(instance, user_data)
         
         return instance
+    
+    def to_representation(self, instance):
+        return {
+            "user": {
+                "creation_date": instance.user.creation_date,
+                "email": instance.user.email,
+                "first_name": instance.user.first_name,
+                "last_name": instance.user.last_name,
+                "phone_number": instance.user.phone_number,
+                "role": instance.user.role,
+                "profile": {
+                    "delivery_area": {
+                        "id": instance.delivery_area.id,
+                        "name": instance.delivery_area.name,
+                    } if instance.delivery_area else None,
+                    "is_available": instance.is_available
+                }
+            }
+        }
+
+
+class DeliveryAreaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeliveryArea
+        fields = ['id', 'name']
+
+
+class ChefSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(source='user.email')
+    first_name = serializers.CharField(source='user.first_name')
+    last_name = serializers.CharField(source='user.last_name')
+    phone_number = serializers.CharField(source='user.phone_number')
+    is_active = serializers.BooleanField(source='user.is_active')
+
+    class Meta:
+        model = Chef
+        fields = ['id', 'email', 'first_name', 'last_name', 'phone_number', 'is_active', 'shift']
+
+
+class DeliverySerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(source='user.email')
+    first_name = serializers.CharField(source='user.first_name')
+    last_name = serializers.CharField(source='user.last_name')
+    phone_number = serializers.CharField(source='user.phone_number')
+    is_active = serializers.BooleanField(source='user.is_active')
+    delivery_area = DeliveryAreaSerializer()
+
+    class Meta:
+        model = Delivery
+        fields = ['id', 'email', 'first_name', 'last_name', 'phone_number', 'is_active', 'delivery_area', 'is_available']

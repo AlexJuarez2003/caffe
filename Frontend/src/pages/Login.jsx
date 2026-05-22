@@ -27,11 +27,8 @@ const Login = () => {
 
       if (!response.ok) {
         const mostrarErrores = (objetoError, prefijo = "") => {
-
           Object.entries(objetoError).forEach(([llave, valor]) => {
-
             if (Array.isArray(valor)) {
-
               // Si es un array de mensajes, mostrarlos
               valor.forEach((msg) => {
                 notify({
@@ -42,12 +39,9 @@ const Login = () => {
                 });
               });
             } else if (typeof valor === "object" && valor !== null) {
-
               // Recursivo
               mostrarErrores(valor, llave);
-
             } else {
-
               // Por si es un string directo
               notify({
                 type: "error",
@@ -60,30 +54,36 @@ const Login = () => {
         };
 
         mostrarErrores(data);
-      
       } else {
-        // Guardar en localstorage
         localStorage.setItem("user", JSON.stringify(data.user));
 
-        // Redirige
-        navigate("/menu");
+        const rol = data.user.role;
 
-        // console.log(JSON.stringify(data))
+        if (rol === "Administrador") {
+          navigate("/admin");
+        } else if (rol === "Cocinero") {
+          navigate("/menu");
+          //navigate("/cocina");
+        } else if (rol === "Repartidor") {
+          //navigate("/entregas");
+          navigate("/menu");
+        } else {
+          navigate("/menu");
+        }
       }
     } catch (err) {
       notify({
-          type: "error",
-          title: "Error de conexión",
-          message: "No se ha podido comunicar con el servidor.",
-          duration: 4000,
-        });
+        type: "error",
+        title: "Error de conexión",
+        message: "No se ha podido comunicar con el servidor.",
+        duration: 4000,
+      });
     }
   };
 
   return (
     <div className="min-h-screen bg-[#f3f4ed] flex items-center justify-center p-4 md:p-8">
       <div className="max-w-6xl w-full bg-white rounded-[4rem] shadow-2xl overflow-hidden border border-gray-100 flex flex-col md:flex-row">
-        {/* COLUMNA 1: IMAGEN DE AMBIENTE */}
         <div className="w-full md:w-3/5 relative h-48 md:h-auto">
           <img
             src={imagenFondo}
@@ -99,7 +99,6 @@ const Login = () => {
           </div>
         </div>
 
-        {/* COLUMNA 2: LOGO Y FORMULARIO */}
         <div className="w-full md:w-2/5 p-8 md:p-10 flex flex-col justify-center bg-white">
           <div className="text-center mb-8">
             <img

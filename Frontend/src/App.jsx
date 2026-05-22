@@ -4,14 +4,15 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Login from './pages/Login';
+import Login from "./pages/Login";
 import UserProfile from "./pages/PerfilUsuario";
 import FoodMenu from "./pages/MenuComida";
 import HistorialPedidos from "./pages/HistorialPedidos";
 import Carrito from "./pages/Carrito";
 import SignUp from "./pages/SignUp";
 import { NotificationContainer } from "./components/Notificacion";
-import AdminDashboard from './pages/AdminDashboard';
+import AdminDashboard from "./pages/AdminDashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -26,16 +27,50 @@ function App() {
 
             <Route path="/signup" element={<SignUp />} />
 
-            <Route path="/menu" element={<FoodMenu />} />
+            <Route 
+              path="/perfil" 
+              element={
+                <ProtectedRoute roles={["Cliente", "Cocinero", "Repartidor"]}>
+                  <UserProfile />
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/perfil" element={<UserProfile />} />
+            <Route
+              path="/menu"
+              element={
+                <ProtectedRoute roles={["Cliente", "Cocinero", "Repartidor"]}>
+                  <FoodMenu />
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/historial" element={<HistorialPedidos />} />
+            <Route
+              path="/carrito"
+              element={
+                <ProtectedRoute roles={["Cliente"]}>
+                  <Carrito />
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/carrito" element={<Carrito />} />
+            <Route 
+              path="/historial"
+              element={
+                <ProtectedRoute roles={["Repartidor"]}>
+                  <HistorialPedidos />
+                </ProtectedRoute>
+              } 
+            />
 
-            {/* LA NUEVA RUTA DE ADMINISTRADOR VA AQUÍ: */}
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute roles={["Administrador"]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Redirección por si escriben una ruta que no existe (Esta siempre va al final) */}
             <Route path="*" element={<Navigate to="/" />} />

@@ -40,7 +40,6 @@ const Carrito = () => {
 
     if (newQuantity < 1) return;
 
-    // Actualización optimista solo de la cantidad
     setItems((prev) =>
       prev.map((i) => (i.id === item.id ? { ...i, quantity: newQuantity } : i)),
     );
@@ -57,7 +56,6 @@ const Carrito = () => {
       );
 
       if (response.ok) {
-        // Refresca subtotales y total desde el backend
         const carrito = await fetchWithAuth(
           "http://localhost:8000/shopping-cart/my-cart/",
         );
@@ -134,7 +132,6 @@ const Carrito = () => {
   return (
     <div className="min-h-screen bg-[#f3f4ed] p-6 pb-32">
       <div className="max-w-2xl mx-auto">
-        {/* Botón Volver al Menú */}
         <button
           onClick={() => navigate("/menu")}
           className="mb-8 flex items-center gap-2 text-[#2d3a1a]/60 hover:text-[#2d3a1a] font-black text-xs uppercase tracking-widest transition-all"
@@ -255,7 +252,6 @@ const Carrito = () => {
           ))}
         </div>
 
-        {/* Resumen de Pago */}
         <div className="mt-10 bg-[#2d3a1a] rounded-[3rem] p-8 text-white shadow-2xl shadow-[#2d3a1a]/30">
           <div className="space-y-3 mb-6">
             <div className="flex justify-between items-center">
