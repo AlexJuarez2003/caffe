@@ -8,7 +8,8 @@ from rest_framework.views import APIView
 
 from .serializers import (UserSignUpSerializer,  CustomerSignUpSerializer, ChefSignUpSerializer, DeliverySignUpSerializer,
                           UserUpdateSerializer, CustomerUpdateSerializer, ChefUpdateSerializer, DeliveryUpdateSerializer,
-                          LoginSerializer, 
+                          LoginSerializer,
+                          ChefSerializer, DeliverySerializer
                           )
 
 
@@ -167,3 +168,21 @@ class DeleteAccountView(APIView):
         response.delete_cookie('refresh')
         
         return response
+
+
+class ChefListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        chefs = Chef.objects.select_related('user').all()
+        serializer = ChefSerializer(chefs, many=True)
+        return Response(serializer.data)
+
+
+class DeliveryListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        deliveries = Delivery.objects.select_related('user', 'delivery_area').all()
+        serializer = DeliverySerializer(deliveries, many=True)
+        return Response(serializer.data)

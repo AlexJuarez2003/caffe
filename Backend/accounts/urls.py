@@ -3,7 +3,8 @@ from .views import (
         SignupView, CustomerSignUpView, ChefSignUpView, DeliverySignUpView, 
         LoginView, RefreshView, LogoutView, 
         UserProfileUpdateView, CustomerProfileUpdateView, ChefProfileUpdateView, DeliveryProfileUpdateView,
-        DeleteAccountView
+        DeleteAccountView,
+        ChefListView, DeliveryListView
     )
 
 urlpatterns = [
@@ -26,4 +27,8 @@ urlpatterns = [
     
     # Delete accounts
     path('profile/delete/', DeleteAccountView.as_view(), name='delete-profile'),    
+    
+    # List employees
+    path('chefs/', ChefListView.as_view(), name='chef-list'),
+    path('deliveries/', DeliveryListView.as_view(), name='delivery-list'),
 ]

@@ -12,6 +12,9 @@ import {
   Clock,
   LayoutGrid,
   UtensilsCrossed,
+  MapPin,
+  Activity,
+  ChefHat,
 } from "lucide-react";
 import { fetchWithAuth } from "../helper/FetchWithAuth";
 import ModalEditarPerfil from "./ModalEditarPerfil";
@@ -81,7 +84,6 @@ function PerfilUsuario() {
   return (
     <div className="min-h-screen bg-[#f3f4ed] flex items-center justify-center p-4 md:p-10 font-sans">
       <div className="max-w-6xl w-full bg-white rounded-[4rem] shadow-2xl overflow-hidden border border-gray-100 flex flex-col md:flex-row min-h-150">
-        {/* COLUMNA IZQUIERDA (VERDE) */}
         <div className="w-full md:w-2/5 p-10 bg-[#2d3a1a] flex flex-col justify-between items-center text-white">
           <div className="flex flex-col items-center w-full">
             <div className="w-40 h-40 bg-orange-500 rounded-[2.5rem] flex items-center justify-center relative mb-0 text-4xl font-black shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300">
@@ -134,7 +136,6 @@ function PerfilUsuario() {
           </button>
         </div>
 
-        {/* COLUMNA DERECHA (DATOS) */}
         <div className="w-full md:w-3/5 p-10 md:p-14 bg-white relative">
           <div className="flex justify-between items-center mb-10">
             <h1 className="text-4xl font-black text-[#2d3a1a] tracking-tighter">
@@ -144,7 +145,6 @@ function PerfilUsuario() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* SECCIÓN SEGURIDAD */}
             <div className="space-y-6">
               <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">
                 Seguridad
@@ -177,43 +177,105 @@ function PerfilUsuario() {
               </div>
             </div>
 
-            {/* SECCIÓN ACADÉMICO */}
-            <div className="space-y-6">
-              <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">
-                Académico
-              </h3>
-              <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-22.5">
-                <div className="shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400">
-                  <CreditCard className="w-5 h-5" />
+            {user.role === "Cliente" && (
+              <div className="space-y-6">
+                <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">
+                  Académico
+                </h3>
+                <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-22.5">
+                  <div className="shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400">
+                    <CreditCard className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">
+                      No. Control
+                    </p>
+                    <p className="text-sm font-bold text-gray-700 truncate">
+                      {user.profile?.control_number || "—"}
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="text-[10px] text-gray-400 font-bold uppercase">
-                    No. Control
-                  </p>
-                  <p className="text-sm font-bold text-gray-700 truncate">
-                    {user.profile?.control_number
-                      ? user.profile.control_number
-                      : ""}
-                  </p>
-                </div>
-              </div>
-              {/* FIX PARA CARRERA: Usamos break-words en lugar de truncate */}
-              <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-22.5">
-                <div className="shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400">
-                  <LayoutGrid className="w-5 h-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] text-gray-400 font-bold uppercase">
-                    Carrera
-                  </p>
-                  <p className="text-sm font-bold text-gray-700 wrap-break-word leading-tight">
-                    {user.profile?.department ? user.profile.department : ""}
-                  </p>
+                <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-22.5">
+                  <div className="shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400">
+                    <LayoutGrid className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">
+                      Carrera
+                    </p>
+                    <p className="text-sm font-bold text-gray-700 wrap-break-word leading-tight">
+                      {user.profile?.department || "—"}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* SECCIÓN CONTACTO */}
+            {user.role === "Repartidor" && (
+              <div className="space-y-6">
+                <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">
+                  Reparto
+                </h3>
+                <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-22.5">
+                  <div className="shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">
+                      Área de reparto
+                    </p>
+                    <p className="text-sm font-bold text-gray-700 wrap-break-word leading-tight">
+                      {user.profile?.delivery_area?.name || "Sin área asignada"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-22.5">
+                  <div className="shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400">
+                    <Activity className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">
+                      Disponibilidad
+                    </p>
+                    <p
+                      className={`text-sm font-bold ${
+                        user.profile?.is_available
+                          ? "text-green-600"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {user.profile?.is_available === undefined
+                        ? "—"
+                        : user.profile.is_available
+                          ? "Disponible"
+                          : "No disponible"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {user.role === "Cocinero" && (
+              <div className="space-y-6">
+                <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">
+                  Cocina
+                </h3>
+                <div className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl min-h-22.5">
+                  <div className="shrink-0 p-3 bg-white rounded-2xl shadow-sm text-gray-400">
+                    <ChefHat className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">
+                      Turno
+                    </p>
+                    <p className="text-sm font-bold text-gray-700 capitalize">
+                      {user.profile?.shift || "—"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <h3 className="text-orange-500 font-black text-[10px] uppercase tracking-[0.3em]">

@@ -74,8 +74,8 @@ class Chef(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='chef')
     
     SHIFT_CHOICES = (
-        ('Matutino', 'Matutino'),
-        ('Vespertino', 'Vespertino'),
+        ('matutino', 'Matutino'),
+        ('vespertino', 'Vespertino'),
     )
     
     shift = models.CharField(max_length=20, choices=SHIFT_CHOICES, default='Matutino')

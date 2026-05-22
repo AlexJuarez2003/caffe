@@ -228,7 +228,7 @@ const FoodMenu = () => {
                 >
                   <div className="h-64 overflow-hidden relative">
                     <img
-                      src={producto.image ? producto.image : img}
+                      src={producto.image_url ? producto.image_url : img}
                       alt={producto.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />

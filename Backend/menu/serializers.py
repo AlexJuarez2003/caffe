@@ -87,19 +87,29 @@ class ProductWriteSerializer(serializers.ModelSerializer):
         ]
         
     def validate(self, data):
+      
         product_type = data.get('product_type')
+        if not product_type and self.instance:
+            product_type = self.instance.product_type
         
+        if not product_type:
+            raise serializers.ValidationError({'product_type': 'This field is required.'})
+
         if product_type == 'meal' and not data.get('meal'):
-            raise serializers.ValidationError('Meal data required')
+            if not self.instance or not hasattr(self.instance, 'meal'):
+                raise serializers.ValidationError({'meal': 'Meal data required.'})
         
-        if product_type == 'drink' and not data.get('drink'):
-            raise serializers.ValidationError('Drink data required')
+        elif product_type == 'drink' and not data.get('drink'):
+            if not self.instance or not hasattr(self.instance, 'drink'):
+                raise serializers.ValidationError({'drink': 'Drink data required.'})
         
-        if product_type == 'dessert' and not data.get('dessert'):
-            raise serializers.ValidationError('Dessert data required')
+        elif product_type == 'dessert' and not data.get('dessert'):
+            if not self.instance or not hasattr(self.instance, 'dessert'):
+                raise serializers.ValidationError({'dessert': 'Dessert data required.'})
         
-        if product_type == 'snack' and not data.get('snack'):
-            raise serializers.ValidationError('Snack data required')
+        elif product_type == 'snack' and not data.get('snack'):
+            if not self.instance or not hasattr(self.instance, 'snack'):
+                raise serializers.ValidationError({'snack': 'Snack data required.'})
         
         return data
     
@@ -143,42 +153,36 @@ class ProductWriteSerializer(serializers.ModelSerializer):
         old_type = instance.product_type
         new_type = validated_data.get('product_type', old_type)
         
-        # Update basic fields
         for attr, value in validated_data.items():
+            if attr == 'image_url' and value in ['', None]:
+                continue
             setattr(instance, attr, value)
         instance.save()
         
-        # Ingredients
         if ingredients_data is not None:
             instance.product_ingredients.all().delete()
-            
             ProductIngredient.objects.bulk_create([
-                ProductIngredient(
-                    product=instance,
-                    **item
-                )
+                ProductIngredient(product=instance, **item)
                 for item in ingredients_data
             ])
 
-        # Delete subtype only if type changes
         if old_type != new_type:
             Meal.objects.filter(product=instance).delete()
             Drink.objects.filter(product=instance).delete()
             Dessert.objects.filter(product=instance).delete()
             Snack.objects.filter(product=instance).delete()
         
-        # Recreate subtype if provided
         if instance.product_type == 'meal' and meal_data:
-            Meal.objects.create(product=instance, **meal_data)
+            Meal.objects.update_or_create(product=instance, defaults=meal_data)
         
         elif instance.product_type == 'drink' and drink_data:
-            Drink.objects.create(product=instance, **drink_data)
+            Drink.objects.update_or_create(product=instance, defaults=drink_data)
             
         elif instance.product_type == 'dessert' and dessert_data:
-            Dessert.objects.create(product=instance, **dessert_data)
+            Dessert.objects.update_or_create(product=instance, defaults=dessert_data)
         
         elif instance.product_type == 'snack' and snack_data:
-            Snack.objects.create(product=instance, **snack_data)
+            Snack.objects.update_or_create(product=instance, defaults=snack_data)
         
         return instance
 
@@ -203,6 +207,7 @@ class ProductDetailReadingSerializer(serializers.ModelSerializer):
             'price',
             'product_type',
             'stock',
+            'image_url',
             'is_available',
             'ingredients',
             'meal',
@@ -237,6 +242,7 @@ class ProductListReadingSerializer(serializers.ModelSerializer):
             'price',
             'product_type',
             'stock',
+            'image_url',
             'meal',
             'drink',
             'dessert',
