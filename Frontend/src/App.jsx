@@ -13,6 +13,7 @@ import SignUp from "./pages/SignUp";
 import { NotificationContainer } from "./components/Notificacion";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CocinaPanel from "./pages/CocinaPanel";
 
 function App() {
   return (
@@ -57,7 +58,7 @@ function App() {
             <Route 
               path="/historial"
               element={
-                <ProtectedRoute roles={["Repartidor"]}>
+                <ProtectedRoute roles={["Cliente"]}>
                   <HistorialPedidos />
                 </ProtectedRoute>
               } 
@@ -68,6 +69,15 @@ function App() {
               element={
                 <ProtectedRoute roles={["Administrador"]}>
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route 
+              path="/cocina" 
+              element={
+                <ProtectedRoute roles={["Cocinero"]}>
+                  <CocinaPanel />
                 </ProtectedRoute>
               }
             />

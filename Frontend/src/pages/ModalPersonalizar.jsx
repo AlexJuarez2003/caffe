@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { X, Check, Leaf, Coffee, Pizza, Plus } from "lucide-react";
+import { X, Check, Leaf, Coffee, Pizza, Plus, ShoppingCart, ShoppingBag, } from "lucide-react";
 import { notify } from "../components/Notificacion";
 
-const CustomModal = ({ isOpen, onClose, producto, onAgregar }) => {
+const CustomModal = ({
+  isOpen,
+  onClose,
+  producto,
+  onAgregar,
+  onAgregarDirecto
+}) => {
   const img =
     "https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=400";
 
@@ -76,15 +82,6 @@ const CustomModal = ({ isOpen, onClose, producto, onAgregar }) => {
   }, [isOpen, producto]);
 
   if (!isOpen || !producto) return null;
-
-  const handleAgregarAlCarrito = () => {
-    onAgregar({
-      product: producto.id,
-      quantity: formData.quantity,
-      notes: formData.notes,
-      ingredients: formData.ingredients,
-    });
-  };
 
   return (
     <div className="fixed inset-0 z-110 flex items-center justify-center p-4">
@@ -201,12 +198,39 @@ const CustomModal = ({ isOpen, onClose, producto, onAgregar }) => {
           </div>
 
           <div className="mt-10">
-            <button
-              onClick={handleAgregarAlCarrito}
-              className="w-full bg-[#2d3a1a] hover:bg-[#1a2310] text-white py-5 rounded-4x1 font-black text-lg shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95"
-            >
-              Agregar al carrito
-            </button>
+
+            <div className="mt-10 flex gap-3">
+              <button
+                onClick={() => {
+                  onAgregar({
+                    product: producto.id,
+                    quantity: Number(formData.quantity),
+                    notes: formData.notes,
+                    ingredients: formData.ingredients,
+                  });
+                }}
+                className="flex-1 bg-gray-50 border border-gray-200 hover:bg-gray-100 text-[#2d3a1a] py-5 rounded-4x1 font-black text-sm shadow-sm transition-all flex items-center justify-center gap-3 active:scale-95"
+              >
+                <ShoppingCart className="w-5 h-5" /> Guardar en carrito
+              </button>
+              <button
+                onClick={() => {
+                  onAgregarDirecto({
+                    idUnico: Date.now(),
+                    product: producto.id,
+                    nombre: producto.name,
+                    img: producto.image_url,
+                    price: producto.price,
+                    quantity: Number(formData.quantity),
+                    notes: formData.notes,
+                    ingredients: formData.ingredients,
+                  });
+                }}
+                className="flex-1 bg-[#2d3a1a] hover:bg-[#1a2310] text-white py-5 rounded-4x1 font-black text-sm shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95"
+              >
+                <ShoppingBag className="w-5 h-5" /> Pedir ahora
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -188,7 +188,7 @@ class OrderDetailView(APIView):
 
         return Response(OrderSerializer(order).data)
 
-
+'''
 class OrderStatusUpdateView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -206,5 +206,92 @@ class OrderStatusUpdateView(APIView):
 
         order.status = new_status
         order.save(update_fields=['status'])
+
+        return Response(OrderSerializer(order).data)
+'''
+
+class OrderListByRoleView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        role = request.user.role
+
+        if role == "Cocinero":
+            orders = Order.objects.filter(
+                status__in=["pending", "preparing"]
+            ).prefetch_related(
+                "items__ingredients__ingredient",
+                "delivery_location"
+            ).order_by("date", "time")
+
+        elif role == "Repartidor":
+            orders = Order.objects.filter(
+                status="ready"
+            ).prefetch_related(
+                "items__ingredients__ingredient",
+                "delivery_location"
+            ).order_by("date", "time")
+
+        elif role == "Administrador":
+            orders = Order.objects.all().prefetch_related(
+                "items__ingredients__ingredient",
+                "delivery_location"
+            ).order_by("-date", "-time")
+
+        else:
+            return Response(
+                {"error": "No tienes permiso para ver pedidos."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return Response(OrderSerializer(orders, many=True).data)
+
+
+class OrderStatusUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    VALID_TRANSITIONS = {
+        "Cocinero": {
+            "pending": "preparing",
+            "preparing": "ready",
+        },
+        "Repartidor": {
+            "ready": "delivering",
+            "delivering": "delivered",
+        },
+        "Administrador": {
+            "pending": "preparing",
+            "preparing": "ready",
+            "ready": "delivering",
+            "delivering": "delivered",
+            # "pending": "cancelled",
+        },
+    }
+
+    def patch(self, request, pk):
+        try:
+            order = Order.objects.get(pk=pk)
+        except Order.DoesNotExist:
+            return Response({"error": "Pedido no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+        role = request.user.role
+        new_status = request.data.get("status")
+
+        transitions = self.VALID_TRANSITIONS.get(role, {})
+
+        if order.status not in transitions:
+            return Response(
+                {"error": f"No puedes cambiar el estado de un pedido '{order.status}'."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if new_status != transitions[order.status]:
+            return Response(
+                {"error": f"Transición inválida: '{order.status}' → '{new_status}'."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        order.status = new_status
+        order.save(update_fields=["status"])
 
         return Response(OrderSerializer(order).data)
