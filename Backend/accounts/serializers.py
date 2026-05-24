@@ -10,14 +10,13 @@ from logistics.models import DeliveryArea
 class UserSignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'password']
+        fields = ['email', 'password', 'first_name', 'last_name', 'phone_number']
         
         # Do not return password, only enter it
         extra_kwargs = {
             'password': {'write_only': True},
         }
     
-    # Pending
     def validate_email(self, value):
         
         email = value.lower()

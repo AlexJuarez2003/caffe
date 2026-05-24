@@ -27,7 +27,7 @@ class ShoppingCartItem(models.Model):
 
         extras_total = sum(
             (
-                cart_ingredient.extra_price * cart_ingredient.quantity
+                cart_ingredient.extra_price
                 for cart_ingredient in self.cart_ingredients.filter(action='extra')
             ),
             Decimal('0.00')

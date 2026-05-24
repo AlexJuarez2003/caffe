@@ -11,12 +11,20 @@ import {
 } from "lucide-react";
 import { fetchWithAuth } from "../helper/FetchWithAuth";
 import { notify } from "../components/Notificacion";
+import ModalUbicacion from "./ModalUbicacion";
+import ModalPago from "./ModalMetodoPago";
 
 const Carrito = () => {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0.0);
   const [idExpandido, setIdExpandido] = useState(null);
+
+  const [itemsSeleccionados, setItemsSeleccionados] = useState([]);
+  const [modalUbicacionAbierto, setModalUbicacionAbierto] = useState(false);
+  const [modalPagoAbierto, setModalPagoAbierto] = useState(false);
+  const [ubicacion, setUbicacion] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchWithAuth("http://localhost:8000/shopping-cart/my-cart/")
@@ -129,6 +137,64 @@ const Carrito = () => {
     setIdExpandido(idExpandido === id ? null : id);
   };
 
+  const toggleItem = (id) => {
+    setItemsSeleccionados((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+    );
+  };
+
+  const handleUbicacionConfirmada = (ubicacionData) => {
+    setUbicacion(ubicacionData);
+    setModalUbicacionAbierto(false);
+    setModalPagoAbierto(true);
+  };
+
+  const handlePedidoConfirmado = async (metodoPago) => {
+    setLoading(true);
+    try {
+      const response = await fetchWithAuth(
+        "http://localhost:8000/orders/from-cart/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            cart_item_ids: itemsSeleccionados,
+            payment_method: metodoPago,
+            delivery_location: ubicacion,
+          }),
+        },
+      );
+
+      if (response.ok) {
+        setItems((prev) =>
+          prev.filter((i) => !itemsSeleccionados.includes(i.id)),
+        );
+        setItemsSeleccionados([]);
+        setUbicacion(null);
+        return true;
+      } else {
+        const error = await response.json();
+        notify({
+          type: "error",
+          title: "Error al realizar pedido",
+          message: JSON.stringify(error),
+          duration: 5000,
+        });
+        return false;
+      }
+    } catch {
+      notify({
+        type: "error",
+        title: "Error al conectarse al servidor",
+        duration: 4000,
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#f3f4ed] p-6 pb-32">
       <div className="max-w-2xl mx-auto">
@@ -147,8 +213,32 @@ const Carrito = () => {
           {items.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-[2.5rem] p-6 shadow-xl border border-gray-100 overflow-hidden transition-all"
+              className={`bg-white rounded-[2.5rem] p-6 shadow-xl border-2 transition-all ${
+                itemsSeleccionados.includes(item.id)
+                  ? "border-orange-500"
+                  : "border-gray-100"
+              }`}
             >
+              <div className="flex items-center gap-4 px-8 pt-4">
+                <button
+                  onClick={() => toggleItem(item.id)}
+                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                    itemsSeleccionados.includes(item.id)
+                      ? "border-orange-500 bg-orange-500"
+                      : "border-gray-200"
+                  }`}
+                >
+                  {itemsSeleccionados.includes(item.id) && (
+                    <div className="w-2 h-2 bg-white rounded-full" />
+                  )}
+                </button>
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                  {itemsSeleccionados.includes(item.id)
+                    ? "Incluido"
+                    : "Incluir en pedido"}
+                </span>
+              </div>
+
               <div
                 className="p-8 flex justify-between items-center cursor-pointer hover:bg-gray-50/50 transition-colors"
                 onClick={() => alternarExpansion(item.id)}
@@ -210,28 +300,27 @@ const Carrito = () => {
                                 <span className="font-black text-[#2d3a1a] text-sm">
                                   {ingredient.ingredient.name +
                                     " " +
-                                    ingredient.action +
-                                    " x" +
-                                    item.quantity}
+                                    ingredient.action
+                                  }
                                 </span>
                                 <span className="font-bold text-[#2d3a1a] text-sm">
                                   + $
-                                  {ingredient.quantity *
+                                  {
                                     ingredient.extra_price *
-                                    item.quantity}
+                                    item.quantity
+                                  }
                                 </span>
                               </div>
                               <p className="text-[10px] lowercase text-orange-600 font-black mt-1 italic">
                                 {ingredient.action === "extra"
                                   ? "+ " +
-                                    ingredient.ingredient.base_quantity *
                                       ingredient.quantity +
                                     " " +
                                     ingredient.ingredient.unit +
                                     " de " +
                                     ingredient.ingredient.description +
                                     " c/u"
-                                  : "- " +
+                                  : 
                                     ingredient.quantity +
                                     " " +
                                     ingredient.ingredient.unit +
@@ -263,12 +352,30 @@ const Carrito = () => {
           </div>
 
           <button
-            onClick={() => alert("¡Pedido enviado a la cocina!")}
-            className="w-full py-5 bg-orange-500 hover:bg-orange-600 text-white rounded-4x1 font-black text-sm uppercase tracking-[0.2em] transition-all shadow-lg shadow-orange-900/40 flex items-center justify-center gap-3 active:scale-95"
+            onClick={() => setModalUbicacionAbierto(true)}
+            disabled={itemsSeleccionados.length === 0}
+            className="w-full py-5 bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-[2.5rem] font-black text-sm uppercase tracking-[0.2em] transition-all shadow-lg shadow-orange-900/40 flex items-center justify-center gap-3 active:scale-95"
           >
-            Realizar Pedido <CreditCard className="w-5 h-5" />
+            Realizar Pedido ({itemsSeleccionados.length}){" "}
+            <CreditCard className="w-5 h-5" />
           </button>
         </div>
+
+        <ModalUbicacion
+          isOpen={modalUbicacionAbierto}
+          onClose={() => setModalUbicacionAbierto(false)}
+          onConfirmar={handleUbicacionConfirmada}
+        />
+
+        <ModalPago
+          isOpen={modalPagoAbierto}
+          onClose={() => setModalPagoAbierto(false)}
+          total={items
+            .filter((i) => itemsSeleccionados.includes(i.id))
+            .reduce((acc, i) => acc + parseFloat(i.subtotal), 0)
+            .toFixed(2)}
+          onConfirmar={handlePedidoConfirmado}
+        />
 
         <p className="mt-8 text-center text-[#2d3a1a]/30 text-[10px] font-black uppercase tracking-widest">
           Verifica tu pedido antes de confirmar • CafeMApp ITO

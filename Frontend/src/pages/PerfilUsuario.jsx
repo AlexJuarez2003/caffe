@@ -15,10 +15,12 @@ import {
   MapPin,
   Activity,
   ChefHat,
+  ArrowLeft,
 } from "lucide-react";
 import { fetchWithAuth } from "../helper/FetchWithAuth";
 import ModalEditarPerfil from "./ModalEditarPerfil";
 import { notify } from "../components/Notificacion";
+import { cerrarSesion } from "../helper/LogOut";
 
 function PerfilUsuario() {
   const navigate = useNavigate();
@@ -38,35 +40,6 @@ function PerfilUsuario() {
   useEffect(() => {
     getUser();
   }, []);
-
-  // Eliminar datos de sesión
-  const cerrarSesion = async () => {
-    const response = await fetchWithAuth(
-      "http://localhost:8000/accounts/logout/",
-      {
-        method: "POST",
-        credentials: "include",
-      },
-    );
-
-    if (response.ok) {
-      notify({
-        type: "success",
-        title: "Sesión terminada",
-        message: "Se ha cerrado su sesión adecuadamente.",
-        duration: 4000,
-      });
-      localStorage.removeItem("user");
-      navigate("/login");
-    } else {
-      notify({
-        type: "error",
-        title: "Error de conexión",
-        message: "No se ha podido comunicar con el servidor.",
-        duration: 4000,
-      });
-    }
-  };
 
   const iniciarSesion = async () => {
     navigate("/login");
@@ -108,28 +81,41 @@ function PerfilUsuario() {
               </p>
             </div>
             <nav className="w-full space-y-4">
-              <button
-                onClick={() => navigate("/menu")}
-                className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg flex items-center justify-center gap-3 transition-all active:scale-95"
-              >
-                <UtensilsCrossed className="w-4 h-4" /> Ver Menú de Hoy
-              </button>
-
-              <button
-                onClick={() => navigate("/historial")}
-                className="w-full py-4 bg-[#3d4d24] text-white/70 hover:text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 active:scale-95"
-              >
-                <Clock className="w-4 h-4 text-orange-500" /> Mis Pedidos
-              </button>
-
-              <button className="w-full py-4 bg-[#3d4d24] text-white/70 hover:text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 active:scale-95">
-                <Settings className="w-4 h-4 text-orange-500" /> Configuración
-              </button>
+              {user.role ? (
+                user.role === "Cliente" ? (
+                  <>
+                    <button
+                      onClick={() => navigate("/menu")}
+                      className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg flex items-center justify-center gap-3 transition-all active:scale-95"
+                    >
+                      <UtensilsCrossed className="w-4 h-4" /> Ver Menú de Hoy
+                    </button>
+                    <button
+                      onClick={() => navigate("/historial")}
+                      className="w-full py-4 bg-[#3d4d24] text-white/70 hover:text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 active:scale-95"
+                    >
+                      <Clock className="w-4 h-4 text-orange-500" /> Mis Pedidos
+                    </button>
+                  </>
+                ) : user.role === "Repartidor" ? (
+                  <button
+                    onClick={() => navigate("/entregas")}
+                    className="w-full py-4 bg-[#3d4d24] text-white/70 hover:text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 active:scale-95"
+                  >
+                    <ArrowLeft className="w-4 h-4 text-orange-500" />
+                    Volver
+                  </button>
+                ) : (
+                  <></>
+                )
+              ) : (
+                <></>
+              )}
             </nav>
           </div>
 
           <button
-            onClick={cerrarSesion}
+            onClick={() => cerrarSesion(navigate)}
             className="mt-8 flex items-center gap-2 text-white/50 hover:text-white font-bold text-[10px] uppercase tracking-widest transition-all"
           >
             <LogOut className="w-4 h-4" /> Cerrar Sesión

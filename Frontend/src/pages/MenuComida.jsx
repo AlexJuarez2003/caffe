@@ -98,6 +98,13 @@ const FoodMenu = () => {
     }
   };
 
+  const onAgregarDirectoDesdeModal = (item) => {
+    setCarrito((prev) => [...prev, item]);
+    setIsModalOpen(false);
+    setIsCartOpen(true); // abre el CartDrawer automáticamente
+    notify({ type: "success", title: "Agregado al pedido", duration: 2000 });
+  };
+
   const categorias = [
     { value: "all", label: "Todos" },
     { value: "meal", label: "Comida" },
@@ -106,27 +113,32 @@ const FoodMenu = () => {
     { value: "snack", label: "Snacks" },
   ];
 
-  // Función para agregar directo (Botón naranja +)
   const agregarAlCarrito = (producto) => {
-    // Generamos un idUnico para poder eliminarlo después sin borrar duplicados
-    const nuevoItem = { ...producto, idUnico: Date.now(), cantidad: 1 };
+    const nuevoItem = {
+      idUnico: Date.now(),
+      product: producto.id,
+      nombre: producto.name,
+      img: producto.image_url,
+      price: producto.price,
+      quantity: 1,
+      notes: null,
+      ingredients: [],
+    };
     setCarrito((prev) => [...prev, nuevoItem]);
-
-    setNotificacion({ visible: true, nombre: producto.nombre });
+    setNotificacion({ visible: true, nombre: producto.name });
     setTimeout(() => setNotificacion({ visible: false, nombre: "" }), 2000);
   };
 
   return (
     <div className="p-8 bg-[#f3f4ed] min-h-screen pb-24">
       <div className="max-w-6xl mx-auto">
-        {/* Notificación Flotante de éxito */}
+
         {notificacion.visible && (
           <div className="fixed top-10 left-1/2 -translate-x-1/2 z-200 bg-[#2d3a1a] text-white px-8 py-4 rounded-full font-black shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
             ¡{notificacion.nombre} agregado exitosamente! 🥳
           </div>
         )}
 
-        {/* Componentes de Interfaz */}
         <CartDrawer
           isOpen={isCartOpen}
           onClose={() => setIsCartOpen(false)}
@@ -139,6 +151,7 @@ const FoodMenu = () => {
           onClose={() => setIsModalOpen(false)}
           producto={selectedProduct}
           onAgregar={onAgregarDesdeModal}
+          onAgregarDirecto={onAgregarDirectoDesdeModal}
         />
 
         <div className="flex flex-row-reverse gap-6">
@@ -282,7 +295,6 @@ const FoodMenu = () => {
             })}
         </div>
 
-        {/* BOTÓN FLOTANTE: Muestra cantidad real en el carrito */}
         <button
           onClick={() => setIsCartOpen(true)}
           className="fixed bottom-10 right-10 z-50 bg-[#2d3a1a] text-white p-6 rounded-[2.5rem] shadow-2xl shadow-[#2d3a1a]/40 hover:scale-110 transition-all active:scale-95 flex items-center gap-4 group"

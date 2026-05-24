@@ -25,14 +25,13 @@ class Command(BaseCommand):
             "email": email,
             "password": password,
             "phone_number": phone_number,
-            "role": "Administrador",
         }
 
         # Usar serializer
         serializer = UserSignUpSerializer(data=data)
 
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(role="Administrador")
             self.stdout.write(self.style.SUCCESS("Administrador creado correctamente"))
         else:
             self.stdout.write(self.style.ERROR("Error al crear el administrador"))

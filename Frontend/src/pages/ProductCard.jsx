@@ -51,7 +51,7 @@ const MenuComida = () => {
     <div className="min-h-screen bg-[#f8f9f5] p-8">
       {/* Header del Menú */}
       <header className="mb-12">
-        <h1 className="text-[#2d3a1a] text-6xl font-black italic tracking-tighter">Nuestro Menú</h1>
+        <h1 className="text-[#2d3a1a] text-6xl font-black italic tracking-tighter">Nuestro Menú Alexander Aquí</h1>
         <p className="text-gray-400 font-bold tracking-widest uppercase text-xs mt-2">
           Instituto Tecnológico de Oaxaca
         </p>
