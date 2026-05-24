@@ -300,28 +300,27 @@ const Carrito = () => {
                                 <span className="font-black text-[#2d3a1a] text-sm">
                                   {ingredient.ingredient.name +
                                     " " +
-                                    ingredient.action +
-                                    " x" +
-                                    item.quantity}
+                                    ingredient.action
+                                  }
                                 </span>
                                 <span className="font-bold text-[#2d3a1a] text-sm">
                                   + $
-                                  {ingredient.quantity *
+                                  {
                                     ingredient.extra_price *
-                                    item.quantity}
+                                    item.quantity
+                                  }
                                 </span>
                               </div>
                               <p className="text-[10px] lowercase text-orange-600 font-black mt-1 italic">
                                 {ingredient.action === "extra"
                                   ? "+ " +
-                                    ingredient.ingredient.base_quantity *
                                       ingredient.quantity +
                                     " " +
                                     ingredient.ingredient.unit +
                                     " de " +
                                     ingredient.ingredient.description +
                                     " c/u"
-                                  : "- " +
+                                  : 
                                     ingredient.quantity +
                                     " " +
                                     ingredient.ingredient.unit +

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Mail, Lock, Phone, Save, User } from "lucide-react";
+import { X, Mail, Lock, Phone, Save, User, CreditCard, LayoutGrid } from "lucide-react";
 import { fetchWithAuth } from "../helper/FetchWithAuth";
 import { notify } from "../components/Notificacion";
 
@@ -12,6 +12,8 @@ const ENDPOINTS = {
 const ModalEditarPerfil = ({ isOpen, onClose, currentData, getUser }) => {
   if (!isOpen) return null;
 
+  const esCliente = currentData.role === "Cliente";
+
   const [formData, setFormData] = useState({
     user: {
       email: currentData.email || "",
@@ -20,6 +22,10 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, getUser }) => {
       phone_number: currentData.phone_number || "",
       password: "",
     },
+    ...(esCliente && {
+      control_number: currentData.profile?.control_number || "",
+      department: currentData.profile?.department || "",
+    }),
   });
 
   const handleUserChange = (e) => {
@@ -28,6 +34,11 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, getUser }) => {
       ...formData,
       user: { ...formData.user, [name]: value },
     });
+  };
+
+  const handleProfileChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e) => {
@@ -99,7 +110,6 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, getUser }) => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
             <div className="relative">
               <Mail className={iconClass} />
               <input
@@ -144,6 +154,33 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, getUser }) => {
               />
             </div>
 
+            {/* CAMPOS EXCLUSIVOS DE CLIENTE */}
+            {esCliente && (
+              <>
+                <div className="relative">
+                  <CreditCard className={iconClass} />
+                  <input
+                    name="control_number"
+                    value={formData.control_number}
+                    onChange={handleProfileChange}
+                    placeholder="Número de control"
+                    className={inputClass}
+                  />
+                </div>
+
+                <div className="relative">
+                  <LayoutGrid className={iconClass} />
+                  <input
+                    name="department"
+                    value={formData.department}
+                    onChange={handleProfileChange}
+                    placeholder="Departamento / Carrera"
+                    className={inputClass}
+                  />
+                </div>
+              </>
+            )}
+
             <div className="relative md:col-span-2">
               <Lock className={iconClass} />
               <input
@@ -155,7 +192,6 @@ const ModalEditarPerfil = ({ isOpen, onClose, currentData, getUser }) => {
                 className={inputClass}
               />
             </div>
-
           </div>
 
           <button

@@ -12,6 +12,7 @@ from .serializers import (
 from shopping_cart.models import ShoppingCartItem
 from logistics.models import Classroom, DeliveryArea
 from menu.models import Product, Ingredient
+from accounts.models import Delivery
 
 
 def crear_delivery_location(order, location_data):
@@ -293,5 +294,79 @@ class OrderStatusUpdateView(APIView):
 
         order.status = new_status
         order.save(update_fields=["status"])
+        
+        if new_status == "delivering" and role == "Repartidor":
+            try:
+                delivery = Delivery.objects.get(user=request.user)
+                if hasattr(order, 'delivery_location') and order.delivery_location:
+                    order.delivery_location.delivery = delivery
+                    order.delivery_location.save(update_fields=["delivery"])
+            except Delivery.DoesNotExist:
+                pass
 
         return Response(OrderSerializer(order).data)
+
+class InStoreSaleView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @transaction.atomic
+    def post(self, request):
+        role = request.user.role
+        if role not in ["Cocinero", "Administrador"]:
+            return Response({"error": "No tienes permiso."}, status=status.HTTP_403_FORBIDDEN)
+
+        items_data = request.data.get("items", [])
+        if not items_data:
+            return Response({"error": "Se requiere al menos un producto."}, status=status.HTTP_400_BAD_REQUEST)
+
+        customer = getattr(request.user, 'customer', None)
+
+        order = Order.objects.create(
+            customer=customer,
+            payment_method="cash",
+            status="delivered",
+            is_in_store=True,
+        )
+
+        for item_data in items_data:
+            try:
+                product = Product.objects.get(id=item_data["product"])
+            except Product.DoesNotExist:
+                return Response(
+                    {"error": f"Producto {item_data['product']} no encontrado."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            crear_order_item(
+                order=order,
+                product=product,
+                quantity=item_data["quantity"],
+                unit_price=product.price,
+                notes=None,
+                ingredients_data=[],
+            )
+
+        order.recalculate_total()
+        return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+    
+class DeliveryHistoryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != "Repartidor":
+            return Response({"error": "No tienes permiso."}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            delivery = Delivery.objects.get(user=request.user)
+        except Delivery.DoesNotExist:
+            return Response({"error": "Repartidor no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+        orders = Order.objects.filter(
+            status="delivered",
+            delivery_location__delivery=delivery
+        ).prefetch_related(
+            "items__ingredients__ingredient",
+            "delivery_location"
+        ).order_by("-date", "-time")
+
+        return Response(OrderSerializer(orders, many=True).data)

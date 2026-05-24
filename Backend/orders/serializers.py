@@ -26,11 +26,18 @@ class DeliveryLocationSerializer(serializers.ModelSerializer):
     classroom_name = serializers.CharField(source='classroom.name', read_only=True)
     building_name = serializers.CharField(source='classroom.building.name', read_only=True)
     area_name = serializers.CharField(source='delivery_area.name', read_only=True)
+    delivery_name = serializers.SerializerMethodField()
 
     class Meta:
         model = DeliveryLocation
-        fields = ['id', 'delivery', 'classroom', 'classroom_name', 'building_name', 'delivery_area', 'area_name', 'reference', 'custom_location']
+        fields = ['id', 'delivery', 'delivery_name', 'classroom', 'classroom_name', 'building_name', 'delivery_area', 'area_name', 'reference', 'custom_location']
 
+    def get_delivery_name(self, obj):
+        if not obj.delivery:
+            return None
+        user = obj.delivery.user
+        full_name = f"{user.first_name} {user.last_name}".strip()
+        return full_name if full_name else user.email
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)

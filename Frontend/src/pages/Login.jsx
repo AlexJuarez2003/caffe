@@ -64,8 +64,7 @@ const Login = () => {
         } else if (rol === "Cocinero") {
           navigate("/cocina");
         } else if (rol === "Repartidor") {
-          //navigate("/entregas");
-          navigate("/menu");
+          navigate("/entregas");
         } else {
           navigate("/menu");
         }

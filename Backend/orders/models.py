@@ -22,7 +22,7 @@ class Order(models.Model):
         ('transfer', 'Transferencia'),
     )
 
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='orders')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='orders', null=True, blank=True)
     reference = models.CharField(max_length=20, unique=True, blank=True)
     date = models.DateField(auto_now_add=True)
     time = models.TimeField(auto_now_add=True)
@@ -30,6 +30,7 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='cash')
     details = models.TextField(blank=True, null=True)
+    is_in_store = models.BooleanField(default=False)
 
     def generate_reference(self):
         return f"ORD-{self.date.strftime('%Y%m%d')}-{self.id:04d}"
@@ -60,7 +61,7 @@ class OrderItem(models.Model):
     def subtotal(self):
         extras_total = sum(
             (
-                ingredient.extra_price * ingredient.quantity
+                ingredient.extra_price
                 for ingredient in self.ingredients.filter(action='extra')
             ),
             Decimal('0.00')

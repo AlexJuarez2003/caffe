@@ -12,7 +12,7 @@ const CartDrawer = ({ isOpen, onClose, items = [], setItems }) => {
   const [ubicacion, setUbicacion] = useState(null);
   const [showPago, setShowPago] = useState(false);
   
-  const total = items.reduce((acc, item) => acc + (item.precio * (item.cantidad || 1)), 0);
+  const total = items.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
 
   const img =
     "https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=400";
@@ -34,7 +34,7 @@ const CartDrawer = ({ isOpen, onClose, items = [], setItems }) => {
             product,
             quantity,
             notes: notes || null,
-            ingredients: ingredients || [],
+            ingredients: ingredients || [].map(({ extra_price, ...rest}) => rest),
           })),
           payment_method: metodoPago,
           delivery_location: ubicacion,
@@ -44,6 +44,7 @@ const CartDrawer = ({ isOpen, onClose, items = [], setItems }) => {
       if (response.ok) {
         setItems([]);
         setUbicacion(null);
+        onClose();
         return true;
       } else {
         const error = await response.json();
@@ -64,8 +65,8 @@ const CartDrawer = ({ isOpen, onClose, items = [], setItems }) => {
   const actualizarCantidad = (idUnico, delta) => {
     setItems(items.map(item => {
       if (item.idUnico === idUnico) {
-        const nuevaCant = Math.max(1, (item.cantidad || 1) + delta);
-        return { ...item, cantidad: nuevaCant };
+        const nuevaCant = Math.max(1, (item.quantity || 1) + delta);
+        return { ...item, quantity: nuevaCant };
       }
       return item;
     }));
@@ -101,6 +102,7 @@ const CartDrawer = ({ isOpen, onClose, items = [], setItems }) => {
             ) : (
               items.map((item) => (
                 <div key={item.idUnico} className="flex gap-4 group animate-in fade-in slide-in-from-right-4">
+                  {console.log(item)}
                   <div className="w-20 h-20 bg-gray-100 rounded-2xl shrink-0 overflow-hidden border border-gray-100">
                     <img src={item.img? item.img : img} alt={item.nombre} className="w-full h-full object-cover" />
                   </div>
@@ -126,9 +128,9 @@ const CartDrawer = ({ isOpen, onClose, items = [], setItems }) => {
                         </div>
                       )}
                       
-                      {item.notas && (
+                      {item.notes && (
                         <p className="text-[10px] font-bold text-orange-500 uppercase italic leading-tight">
-                          "{item.notas}"
+                          "{item.notes}"
                         </p>
                       )}
                     </div>
@@ -139,13 +141,13 @@ const CartDrawer = ({ isOpen, onClose, items = [], setItems }) => {
                           onClick={() => actualizarCantidad(item.idUnico, -1)}
                           className="text-[#2d3a1a] font-black text-lg"
                         >-</button>
-                        <span className="text-sm font-black text-[#2d3a1a]">{item.cantidad || 1}</span>
+                        <span className="text-sm font-black text-[#2d3a1a]">{item.quantity || 1}</span>
                         <button 
                           onClick={() => actualizarCantidad(item.idUnico, 1)}
                           className="text-[#2d3a1a] font-black text-lg"
                         >+</button>
                       </div>
-                      <span className="font-black text-[#2d3a1a]">${item.precio * (item.cantidad || 1)}</span>
+                      <span className="font-black text-[#2d3a1a]">${item.price * (item.quantity || 1)}</span>
                     </div>
                   </div>
                 </div>
@@ -156,10 +158,7 @@ const CartDrawer = ({ isOpen, onClose, items = [], setItems }) => {
           {/* Footer */}
           <div className="p-8 border-t border-gray-100 bg-gray-50/50 rounded-t-[2.5rem]">
             <div className="space-y-2 mb-6">
-              <div className="flex justify-between text-gray-400 text-xs font-bold uppercase tracking-widest">
-                <span>Subtotal</span>
-                <span>${total}.00</span>
-              </div>
+              
               <div className="flex justify-between text-[#2d3a1a] text-xl font-black italic">
                 <span>Total a pagar</span>
                 <span className="text-orange-500 font-black">${total}.00</span>

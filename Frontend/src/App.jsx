@@ -14,6 +14,8 @@ import { NotificationContainer } from "./components/Notificacion";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CocinaPanel from "./pages/CocinaPanel";
+import RepartidorPanel from "./pages/RepartidorPanel";
+import HistorialEntregas from "./pages/HistorialEntregas";
 
 function App() {
   return (
@@ -28,8 +30,8 @@ function App() {
 
             <Route path="/signup" element={<SignUp />} />
 
-            <Route 
-              path="/perfil" 
+            <Route
+              path="/perfil"
               element={
                 <ProtectedRoute roles={["Cliente", "Cocinero", "Repartidor"]}>
                   <UserProfile />
@@ -55,13 +57,13 @@ function App() {
               }
             />
 
-            <Route 
+            <Route
               path="/historial"
               element={
                 <ProtectedRoute roles={["Cliente"]}>
                   <HistorialPedidos />
                 </ProtectedRoute>
-              } 
+              }
             />
 
             <Route
@@ -73,11 +75,29 @@ function App() {
               }
             />
 
-            <Route 
-              path="/cocina" 
+            <Route
+              path="/cocina"
               element={
                 <ProtectedRoute roles={["Cocinero"]}>
                   <CocinaPanel />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/entregas"
+              element={
+                <ProtectedRoute roles={["Repartidor"]}>
+                  <RepartidorPanel />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/entregas/historial"
+              element={
+                <ProtectedRoute roles={["Repartidor"]}>
+                  <HistorialEntregas />
                 </ProtectedRoute>
               }
             />

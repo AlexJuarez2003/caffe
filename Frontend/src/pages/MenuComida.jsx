@@ -139,7 +139,6 @@ const FoodMenu = () => {
           </div>
         )}
 
-        {/* Componentes de Interfaz */}
         <CartDrawer
           isOpen={isCartOpen}
           onClose={() => setIsCartOpen(false)}
